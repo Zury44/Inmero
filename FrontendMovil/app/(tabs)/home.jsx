@@ -33,7 +33,7 @@ export default function Home() {
     <SafeAreaView style={styles.container} edges={["bottom", "left", "right"]}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.title}>¡Bienvenido!</Text>
+          <Text style={styles.title}>¡Bienvenidoo!</Text>
           <Text style={styles.subtitle}>Explora las categorías</Text>
         </View>
         <View style={styles.avatar}>
