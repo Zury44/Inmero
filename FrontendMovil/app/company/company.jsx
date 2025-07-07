@@ -35,9 +35,7 @@ export default function Company() {
         title="Bienvenido!"
         onNotificationPress={handleNotificationPress}
       />
-      <Text style={styles.subtitle}>
-        Conoce las empresas asociadas a tu usuario.
-      </Text>
+      <Text style={styles.subtitle}>Conoce las empresas asociadas a tu .</Text>
       <FlatList
         data={filtered}
         keyExtractor={(item) => item.id}
