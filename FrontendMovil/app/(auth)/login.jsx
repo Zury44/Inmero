@@ -6,9 +6,9 @@ import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
-import { jwtDecode } from "jwt-decode";
 import BotonSubmit from "../../components/BotonSubmit";
 import Input from "../../components/Input";
+import { useSession } from "../../context/SessionContext"; // ✅ contexto
 
 const { API_URL, API_URL_LOGIN, eas } = Constants.expoConfig.extra;
 const projectId = eas?.projectId;
@@ -19,9 +19,15 @@ export default function LoginScreen() {
   const [contrasena, setContrasena] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const {
+    setEmpresasDisponibles,
+    setEmpresaSeleccionada,
+    setUsername, // ✅ nuevo
+    cerrarSesion, // opcional si quieres limpiar antes
+  } = useSession();
+  // ✅ usar contexto
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
   const handleLogin = async () => {
     setError("");
 
@@ -43,6 +49,9 @@ export default function LoginScreen() {
         return;
       }
 
+      setUsername(correo); // ✅ guarda el correo como username en contexto
+
+      // Redirección por estado
       if (usuarioEstado === 2) {
         router.replace("/registro-persona");
         return;
@@ -51,19 +60,18 @@ export default function LoginScreen() {
         return;
       }
 
-      // ✅ Si tiene una sola empresa → ir al home directo
+      // ✅ Guardar lista de empresas en contexto
+      setEmpresasDisponibles(rolesPorEmpresa);
+
       if (rolesPorEmpresa.length === 1) {
         const empresa = rolesPorEmpresa[0];
-        console.log("Redirigiendo directo al home con empresa:", empresa);
+        setEmpresaSeleccionada(empresa);
         router.replace("/home");
         return;
       }
 
-      // ✅ Si tiene varias empresas → mostrar pantalla de selección
-      router.replace({
-        pathname: "/company/company",
-        params: { empresas: JSON.stringify(rolesPorEmpresa) },
-      });
+      // ✅ Tiene varias empresas
+      router.replace("/company/company");
 
       // ✅ Obtener Expo Push Token
       if (Device.isDevice) {
@@ -88,25 +96,11 @@ export default function LoginScreen() {
           await fetch("http://192.168.193.85:3000/api/token", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId, token: pushToken }),
+            body: JSON.stringify({ userId: correo, token: pushToken }),
           });
         } else {
           console.warn("Permiso de notificaciones no concedido.");
         }
-      }
-
-      // ✅ Redirección según estado de usuario
-      if (usuarioEstado === 2) {
-        router.replace("/registro-persona");
-      } else if (usuarioEstado === 3) {
-        router.replace("/registro-empresa");
-      } else if (usuarioEstado === 4) {
-        router.replace({
-          pathname: "/company/company",
-          params: { empresas: JSON.stringify(rolesPorEmpresa) },
-        });
-      } else {
-        setError("Estado de usuario no reconocido.");
       }
     } catch (err) {
       console.error(err);

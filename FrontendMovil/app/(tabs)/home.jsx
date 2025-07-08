@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useSession } from "../../context/SessionContext";
 
 const modules = [
   {
@@ -28,6 +29,7 @@ const modules = [
 
 export default function Home() {
   const router = useRouter();
+  const { empresaSeleccionada, empresasDisponibles } = useSession();
 
   return (
     <SafeAreaView style={styles.container} edges={["bottom", "left", "right"]}>
@@ -40,7 +42,16 @@ export default function Home() {
           <Text style={styles.avatarText}>US</Text>
         </View>
       </View>
-
+      <View style={styles.empresaContainer}>
+        <Text style={styles.empresaText}>
+          Empresa actual: {empresaSeleccionada?.empresaNombre}
+        </Text>
+        {empresasDisponibles?.length > 1 && (
+          <TouchableOpacity onPress={() => router.replace("/company/company")}>
+            <Text style={styles.cambiarLink}>Cambiar empresa</Text>
+          </TouchableOpacity>
+        )}
+      </View>
       {/* Primera fila: Inventario + IoT */}
       <View style={styles.row}>
         {modules.slice(0, 2).map((item) => (
@@ -154,6 +165,23 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 13,
     color: "#444",
+    fontWeight: "500",
+  },
+  empresaContainer: {
+    marginHorizontal: 16,
+    marginBottom: 12,
+    backgroundColor: "#F0F4F8",
+    padding: 12,
+    borderRadius: 12,
+  },
+  empresaText: {
+    fontSize: 14,
+    color: "#333",
+    marginBottom: 4,
+  },
+  cambiarLink: {
+    fontSize: 13,
+    color: "#2196F3",
     fontWeight: "500",
   },
 });

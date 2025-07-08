@@ -1,32 +1,52 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState, useEffect } from "react";
+import { useRouter } from "expo-router";
+import { useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
-import AccentCard from "../../components/Card"; // Asegúrate de que el archivo se llame así
+import AccentCard from "../../components/Card";
 import Header from "../../components/Header";
+import { useSession } from "../../context/SessionContext"; // ✅ contexto
+import axios from "axios";
+import Constants from "expo-constants";
+
+const { API_URL } = Constants.expoConfig.extra;
 
 export default function Company() {
-  const { empresas } = useLocalSearchParams();
   const router = useRouter();
+  const {
+    empresasDisponibles,
+    setEmpresaSeleccionada,
+    setToken,
+    username, // ✅ Usamos el username desde el contexto
+  } = useSession();
+
   const [search, setSearch] = useState("");
-  const [empresaList, setEmpresaList] = useState([]);
 
-  useEffect(() => {
-    if (empresas) {
-      try {
-        const parsed = JSON.parse(empresas);
-        setEmpresaList(parsed);
-      } catch (error) {
-        console.error("Error al parsear empresas:", error);
-      }
-    }
-  }, [empresas]);
-
-  const filtered = empresaList.filter((item) =>
-    item.empresaNombre.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered =
+    empresasDisponibles?.filter((item) =>
+      item.empresaNombre.toLowerCase().includes(search.toLowerCase())
+    ) || [];
 
   const handleNotificationPress = () => {
-    // lógica de notificaciones
+    // lógica futura para notificaciones
+  };
+
+  const handleSelectCompany = async (empresa) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/login/seleccion`, {
+        username: username,
+        empresaId: empresa.empresaId,
+        rolId: empresa.rolId,
+      });
+
+      const { token } = response.data;
+
+      console.log("🔐 Token recibido:", token); // 👈 Aquí
+
+      await setToken(token);
+      setEmpresaSeleccionada(empresa);
+      router.replace("/home");
+    } catch (error) {
+      console.error("Error al seleccionar empresa:", error);
+    }
   };
 
   return (
@@ -47,10 +67,7 @@ export default function Company() {
             name={item.empresaNombre}
             id={item.empresaId.toString()}
             contactInfo={item.rolNombre}
-            onPress={() => {
-              // Aquí podrías guardar la empresa seleccionada en un contexto
-              router.push("/home");
-            }}
+            onPress={() => handleSelectCompany(item)}
           />
         )}
         ListEmptyComponent={
