@@ -36,12 +36,34 @@ export default function LoginScreen() {
         password: contrasena,
       });
 
-      const { token, usuarioEstado } = response.data;
-      console.log("Token JWT recibido:", token);
+      const { rolesPorEmpresa, usuarioEstado } = response.data;
 
-      const decoded = jwtDecode(token); // ✅ Decodificar correctamente
-      const userId = decoded.sub;
-      console.log("Correo del usuario:", userId);
+      if (!rolesPorEmpresa || rolesPorEmpresa.length === 0) {
+        setError("No tienes empresas asociadas.");
+        return;
+      }
+
+      if (usuarioEstado === 2) {
+        router.replace("/registro-persona");
+        return;
+      } else if (usuarioEstado === 3) {
+        router.replace("/registro-empresa");
+        return;
+      }
+
+      // ✅ Si tiene una sola empresa → ir al home directo
+      if (rolesPorEmpresa.length === 1) {
+        const empresa = rolesPorEmpresa[0];
+        console.log("Redirigiendo directo al home con empresa:", empresa);
+        router.replace("/home");
+        return;
+      }
+
+      // ✅ Si tiene varias empresas → mostrar pantalla de selección
+      router.replace({
+        pathname: "/company/company",
+        params: { empresas: JSON.stringify(rolesPorEmpresa) },
+      });
 
       // ✅ Obtener Expo Push Token
       if (Device.isDevice) {
@@ -57,7 +79,7 @@ export default function LoginScreen() {
         if (finalStatus === "granted") {
           const pushToken = (
             await Notifications.getExpoPushTokenAsync({
-              projectId: projectId || "local/FrontendMovil", // fallback si falta en config
+              projectId: projectId || "local/FrontendMovil",
             })
           ).data;
 
@@ -79,7 +101,10 @@ export default function LoginScreen() {
       } else if (usuarioEstado === 3) {
         router.replace("/registro-empresa");
       } else if (usuarioEstado === 4) {
-        router.replace("company/company");
+        router.replace({
+          pathname: "/company/company",
+          params: { empresas: JSON.stringify(rolesPorEmpresa) },
+        });
       } else {
         setError("Estado de usuario no reconocido.");
       }

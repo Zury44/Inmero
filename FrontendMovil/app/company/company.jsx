@@ -1,28 +1,28 @@
-import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useState, useEffect } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
-import Card from "../../components/Card";
+import AccentCard from "../../components/Card"; // Asegúrate de que el archivo se llame así
 import Header from "../../components/Header";
 
-const data = [
-  {
-    id: "1",
-    name: "Empresa Pedro",
-    contactInfo: "Contacto",
-  },
-  {
-    id: "2",
-    name: "Empresa Juan",
-    contactInfo: "Contacto",
-  },
-];
-
 export default function Company() {
-  const [search, setSearch] = useState("");
+  const { empresas } = useLocalSearchParams();
   const router = useRouter();
+  const [search, setSearch] = useState("");
+  const [empresaList, setEmpresaList] = useState([]);
 
-  const filtered = data.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
+  useEffect(() => {
+    if (empresas) {
+      try {
+        const parsed = JSON.parse(empresas);
+        setEmpresaList(parsed);
+      } catch (error) {
+        console.error("Error al parsear empresas:", error);
+      }
+    }
+  }, [empresas]);
+
+  const filtered = empresaList.filter((item) =>
+    item.empresaNombre.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleNotificationPress = () => {
@@ -32,20 +32,23 @@ export default function Company() {
   return (
     <View style={styles.container}>
       <Header
-        title="Bienvenido!"
+        title="¡Bienvenido!"
         onNotificationPress={handleNotificationPress}
       />
-      <Text style={styles.subtitle}>Conoce las empresas asociadas a tu .</Text>
+      <Text style={styles.subtitle}>
+        Conoce las empresas asociadas a tu cuenta.
+      </Text>
+
       <FlatList
         data={filtered}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.empresaId.toString()}
         renderItem={({ item }) => (
-          <Card
-            name={item.name}
-            id={item.id}
-            contactInfo={item.contactInfo}
+          <AccentCard
+            name={item.empresaNombre}
+            id={item.empresaId.toString()}
+            contactInfo={item.rolNombre}
             onPress={() => {
-              // navega al tab modules
+              // Aquí podrías guardar la empresa seleccionada en un contexto
               router.push("/home");
             }}
           />
