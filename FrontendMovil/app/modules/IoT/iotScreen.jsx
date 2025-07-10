@@ -12,8 +12,9 @@ import {
   ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useMQTT } from "../../hooks/useMQTT";
-import CustomHeader from "../../components/CustomHeader";
+import { useMQTT } from "../../../hooks/useMQTT";
+import CustomHeader from "../../../components/CustomHeader";
+import { useSession } from "../../../context/SessionContext";
 
 export default function iotScreen() {
   const {
@@ -33,6 +34,9 @@ export default function iotScreen() {
   const [nivel, setNivel] = useState(0);
   const [animacionNivel] = useState(new Animated.Value(0));
 
+  const { username } = useSession(); // ✅ usamos username del contexto
+
+  // Animación del nivel del tanque
   useEffect(() => {
     if (lastMessage?.topic === "tanque/nivel") {
       const valor = parseFloat(lastMessage.message);
@@ -52,9 +56,13 @@ export default function iotScreen() {
     outputRange: ["0%", "100%"],
   });
 
+  // ✅ Enviar el token push al backend con el userId correcto
   useEffect(() => {
     const registerPushToken = async () => {
-      if (!Device.isDevice) return;
+      if (!Device.isDevice || !username) {
+        console.warn("⚠️ Dispositivo no válido o username no disponible");
+        return;
+      }
 
       const { status: existingStatus } =
         await Notifications.getPermissionsAsync();
@@ -75,7 +83,7 @@ export default function iotScreen() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            userId: "usuario123",
+            userId: username,
             token,
           }),
         });
@@ -85,7 +93,7 @@ export default function iotScreen() {
     };
 
     registerPushToken();
-  }, []);
+  }, [username]); // ✅ Se ejecuta cuando username está disponible
 
   const handleToggle = async (type) => {
     if (type === "bombillo") {
@@ -213,6 +221,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f5f5f5",
     paddingHorizontal: 16,
+  },
+  scrollContent: {
+    paddingBottom: 16,
   },
   statusContainer: {
     flexDirection: "row",
