@@ -8,9 +8,10 @@ import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import BotonSubmit from "../../components/BotonSubmit";
 import Input from "../../components/Input";
-import { useSession } from "../../context/SessionContext"; // ✅ contexto
+import { useSession } from "../../context/SessionContext";
 
-const { API_URL, API_URL_LOGIN, eas } = Constants.expoConfig.extra;
+const { API_URL, API_URL_LOGIN, API_URL_SELECTION, eas } =
+  Constants.expoConfig.extra;
 const projectId = eas?.projectId;
 
 export default function LoginScreen() {
@@ -19,15 +20,17 @@ export default function LoginScreen() {
   const [contrasena, setContrasena] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+
   const {
     setEmpresasDisponibles,
     setEmpresaSeleccionada,
-    setUsername, // ✅ nuevo
-    cerrarSesion, // opcional si quieres limpiar antes
+    setUsername,
+    setToken,
+    cerrarSesion,
   } = useSession();
-  // ✅ usar contexto
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   const handleLogin = async () => {
     setError("");
 
@@ -49,9 +52,8 @@ export default function LoginScreen() {
         return;
       }
 
-      setUsername(correo); // ✅ guarda el correo como username en contexto
+      setUsername(correo);
 
-      // Redirección por estado
       if (usuarioEstado === 2) {
         router.replace("/registro-persona");
         return;
@@ -60,20 +62,33 @@ export default function LoginScreen() {
         return;
       }
 
-      // ✅ Guardar lista de empresas en contexto
       setEmpresasDisponibles(rolesPorEmpresa);
 
       if (rolesPorEmpresa.length === 1) {
         const empresa = rolesPorEmpresa[0];
         setEmpresaSeleccionada(empresa);
+
+        // POST a /auth/login/seleccion para obtener token
+        const seleccionResp = await axios.post(
+          `${API_URL}${API_URL_SELECTION}`,
+          {
+            username: correo,
+            empresaId: empresa.empresaId,
+            rolId: empresa.rolId,
+          }
+        );
+
+        const token = seleccionResp.data.token;
+        await setToken(token);
+
         router.replace("/home");
         return;
       }
 
-      // ✅ Tiene varias empresas
+      // Varias empresas: ir a seleccionar empresa
       router.replace("/company/company");
 
-      // ✅ Obtener Expo Push Token
+      // Obtener Expo Push Token (opcional)
       if (Device.isDevice) {
         const { status: existingStatus } =
           await Notifications.getPermissionsAsync();
@@ -143,20 +158,14 @@ export default function LoginScreen() {
 
       <BotonSubmit texto="Iniciar sesión" onPress={handleLogin} />
 
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push("/forgotPassword")}>
         <Text style={styles.link}>¿Olvidaste tu contraseña?</Text>
       </TouchableOpacity>
 
       <View style={styles.dividerContainer}>
         <View style={styles.line} />
-        <Text style={styles.dividerText}>O</Text>
         <View style={styles.line} />
       </View>
-
-      <TouchableOpacity style={styles.googleButton}>
-        <Ionicons name="logo-google" size={20} color="#EA4335" />
-        <Text style={styles.googleText}>Continuar con Google</Text>
-      </TouchableOpacity>
 
       <View style={styles.signupContainer}>
         <Text style={styles.signupText}>¿No tienes una cuenta? </Text>

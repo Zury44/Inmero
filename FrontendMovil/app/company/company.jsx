@@ -7,7 +7,7 @@ import { useSession } from "../../context/SessionContext"; // ✅ contexto
 import axios from "axios";
 import Constants from "expo-constants";
 
-const { API_URL } = Constants.expoConfig.extra;
+const { API_URL, API_URL_SELECTION } = Constants.expoConfig.extra;
 
 export default function Company() {
   const router = useRouter();
@@ -31,7 +31,7 @@ export default function Company() {
 
   const handleSelectCompany = async (empresa) => {
     try {
-      const response = await axios.post(`${API_URL}/auth/login/seleccion`, {
+      const response = await axios.post(`${API_URL}${API_URL_SELECTION}`, {
         username: username,
         empresaId: empresa.empresaId,
         rolId: empresa.rolId,

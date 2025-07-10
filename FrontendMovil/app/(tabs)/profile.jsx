@@ -65,6 +65,13 @@ const Profile = () => {
             <Text style={styles.infoValue}>{mockUser.telefono}</Text>
           </View>
         </View>
+        <TouchableOpacity
+          style={styles.changePasswordButton}
+          onPress={() => router.push("/profile/changePassword")}
+        >
+          <Ionicons name="key-outline" size={20} color="#fff" />
+          <Text style={styles.changePasswordText}>Cambiar contraseña</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={20} color="#fff" />
@@ -146,6 +153,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logoutText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+    marginLeft: 8,
+  },
+
+  changePasswordButton: {
+    flexDirection: "row",
+    backgroundColor: colors.primary,
+    padding: 14,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  changePasswordText: {
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,

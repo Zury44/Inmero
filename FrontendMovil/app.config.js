@@ -55,6 +55,7 @@ export default {
       API_URL: process.env.API_URL,
       API_KEY: process.env.API_KEY,
       API_URL_LOGIN: process.env.API_URL_LOGIN,
+      API_URL_SELECTION: process.env.API_URL_SELECTION,
       API_CAMARA_URL: process.env.API_CAMARA_URL,
       eas: {
         projectId: "ae7a646c-915d-4fcf-a603-bc45fbe12d00",
