@@ -1,9 +1,37 @@
-// hooks/useMQTT.js
-import { Buffer } from "buffer";
-import mqtt from "mqtt";
 import { useEffect, useRef, useState } from "react";
+import mqtt from "mqtt";
+import { Buffer } from "buffer";
+import process from "process";
+import EventEmitter from "events";
+import Constants from "expo-constants";
 
+// Polyfills necesarios para React Native
 global.Buffer = global.Buffer || Buffer;
+global.process = global.process || process;
+global.EventEmitter = global.EventEmitter || EventEmitter;
+
+// Extraer variables del archivo .env vía app.config.js
+const {
+  MQTT_BROKER_URL,
+  MQTT_CLIENT_ID,
+  MQTT_USERNAME,
+  MQTT_PASSWORD,
+  MQTT_RECONNECT_PERIOD,
+  MQTT_CONNECT_TIMEOUT,
+  MQTT_CLEAN,
+  MQTT_TOPIC,
+} = Constants.expoConfig.extra || {};
+
+console.log("MQTT CONFIG", {
+  MQTT_BROKER_URL,
+  MQTT_CLIENT_ID,
+  MQTT_USERNAME,
+  MQTT_PASSWORD,
+  MQTT_RECONNECT_PERIOD,
+  MQTT_CONNECT_TIMEOUT,
+  MQTT_CLEAN,
+  MQTT_TOPIC,
+});
 
 export const useMQTT = () => {
   const [temperature, setTemperature] = useState(null);
@@ -15,45 +43,60 @@ export const useMQTT = () => {
   const clientRef = useRef(null);
 
   useEffect(() => {
-    const host = "wss://t642eaaf.ala.us-east-1.emqxsl.com:8084/mqtt";
-    const username = "castro";
-    const password = "Castro.2025";
+    if (clientRef.current) return;
 
-    const client = mqtt.connect(host, {
-      username,
-      password,
-      protocol: "wss",
-      reconnectPeriod: 5000,
-      connectTimeout: 4000,
+    const client = mqtt.connect(MQTT_BROKER_URL, {
+      clientId:
+        MQTT_CLIENT_ID || `client_${Math.random().toString(16).slice(2, 10)}`,
+      username: MQTT_USERNAME,
+      password: MQTT_PASSWORD,
+      reconnectPeriod: Number(MQTT_RECONNECT_PERIOD || 5000),
+      connectTimeout: Number(MQTT_CONNECT_TIMEOUT || 4000),
+      clean: MQTT_CLEAN === "true",
     });
 
     clientRef.current = client;
 
+    client.removeAllListeners();
+
     client.on("connect", () => {
-      console.log("🟢 Conectado a EMQX");
+      console.log("✅ Conectado al broker MQTT");
       setConnected(true);
       setIsConnecting(false);
-      client.subscribe("sensor/temperatura", { qos: 0 });
+      client.subscribe(MQTT_TOPIC, { qos: 0 }, (err) => {
+        if (err) {
+          console.error("❌ Error al suscribirse:", err);
+        }
+      });
     });
 
     client.on("reconnect", () => {
+      console.log("🔁 Reintentando conexión...");
       setIsConnecting(true);
     });
 
     client.on("close", () => {
+      console.log("🔌 Desconectado");
       setConnected(false);
       setIsConnecting(false);
     });
 
     client.on("message", (topic, message) => {
-      setLastMessage({ topic, message: message.toString() });
-      if (topic === "sensor/temperatura") {
+      const payload = message.toString();
+      console.log(`📩 Mensaje recibido [${topic}]: ${payload}`);
+      setLastMessage({ topic, message: payload });
+
+      if (topic === MQTT_TOPIC) {
         try {
-          const data = JSON.parse(message.toString());
-          setTemperature(data.temperatura);
-          setHumidity(data.humedad);
-        } catch (e) {
-          console.error("❌ Error parseando mensaje:", e);
+          const data = JSON.parse(payload);
+          if (typeof data.temperatura === "number") {
+            setTemperature(data.temperatura);
+          }
+          if (typeof data.humedad === "number") {
+            setHumidity(data.humedad);
+          }
+        } catch (error) {
+          console.error("❌ Error al parsear JSON:", error);
         }
       }
     });
@@ -63,28 +106,40 @@ export const useMQTT = () => {
     });
 
     return () => {
-      client.end();
+      client.end(true);
+      clientRef.current = null;
     };
   }, []);
 
   const connect = () => {
-    if (clientRef.current) clientRef.current.reconnect();
+    if (clientRef.current && !connected) {
+      clientRef.current.reconnect();
+    }
   };
 
   const toggleDevice = (topic, estado) => {
-    if (clientRef.current) {
-      const payload = JSON.stringify({ estado: estado.toUpperCase() });
-      clientRef.current.publish(topic, payload);
+    if (!clientRef.current || !connected) {
+      console.warn("🔌 Cliente no conectado. No se puede publicar.");
+      return;
     }
+
+    const payload = JSON.stringify({ estado: estado.toUpperCase() });
+    console.log(`📤 Publicando a ${topic}: ${payload}`);
+
+    clientRef.current.publish(topic, payload, { qos: 0 }, (err) => {
+      if (err) {
+        console.error("❌ Error al publicar:", err);
+      }
+    });
   };
 
   return {
     connected,
+    isConnecting,
     temperature,
     humidity,
+    lastMessage,
     toggleDevice,
     connect,
-    isConnecting,
-    lastMessage,
   };
 };

@@ -57,8 +57,16 @@ export default {
       API_URL_LOGIN: process.env.API_URL_LOGIN,
       API_URL_SELECTION: process.env.API_URL_SELECTION,
       API_CAMARA_URL: process.env.API_CAMARA_URL,
+      MQTT_BROKER_URL: process.env.MQTT_BROKER_URL,
+      MQTT_CLIENT_ID: process.env.MQTT_CLIENT_ID,
+      MQTT_USERNAME: process.env.MQTT_USERNAME,
+      MQTT_PASSWORD: process.env.MQTT_PASSWORD,
+      MQTT_TOPIC: process.env.MQTT_TOPIC,
+      MQTT_RECONNECT_PERIOD: process.env.MQTT_RECONNECT_PERIOD,
+      MQTT_CONNECT_TIMEOUT: process.env.MQTT_CONNECT_TIMEOUT,
+      MQTT_CLEAN: process.env.MQTT_CLEAN,
       eas: {
-        projectId: "ae7a646c-915d-4fcf-a603-bc45fbe12d00",
+        projectId: process.env.EXPO_PUBLIC_projectId, // 👈 clave para funcionar en web
       },
     },
   },

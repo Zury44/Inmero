@@ -17,13 +17,19 @@ const modules = [
     id: "2",
     title: "Modulo IoT",
     icon: "access-point",
-    route: "modules/iotScreen",
+    route: "modules/IoT/iotScreen",
   },
   {
     id: "3",
     title: "Modulo Seguridad",
     icon: "shield-lock-outline",
     route: "modules/security",
+  },
+  {
+    id: "4",
+    title: "Modulo Gráficos",
+    icon: "chart-line",
+    route: "modules/graficos",
   },
 ];
 
@@ -90,6 +96,25 @@ export default function Home() {
               />
             </View>
             <Text style={styles.cardTitle}>{modules[2].title}</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color="#999" />
+        </TouchableOpacity>
+      </View>
+      {/* Tercera fila: Gráficos alineado a la izquierda */}
+      <View style={styles.rowLeft}>
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => router.push(modules[3].route)}
+        >
+          <View style={styles.iconLeft}>
+            <View style={styles.iconCircle}>
+              <MaterialCommunityIcons
+                name={modules[3].icon}
+                size={22}
+                color="#777"
+              />
+            </View>
+            <Text style={styles.cardTitle}>{modules[3].title}</Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color="#999" />
         </TouchableOpacity>

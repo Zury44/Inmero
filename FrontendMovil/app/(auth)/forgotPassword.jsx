@@ -1,29 +1,31 @@
-import { useState } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
+  SafeAreaView,
   ActivityIndicator,
+  Alert,
   Dimensions,
-  StatusBar,
 } from "react-native";
-import Constants from "expo-constants";
-import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
+import { useState } from "react";
+import LogoInmero from "../../components/LogoInmero";
+import Constants from "expo-constants";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import axios from "axios";
 
 const { width, height } = Dimensions.get("window");
 const { API_URL } = Constants.expoConfig.extra;
 
 export default function ForgotPassword() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isEmailSent, setIsEmailSent] = useState(false);
-  const router = useRouter();
 
   const handleSendResetEmail = async () => {
     if (!email) {
@@ -35,17 +37,8 @@ export default function ForgotPassword() {
       setLoading(true);
       await axios.post(`${API_URL}/auth/forgot-password`, { email });
 
-      setIsEmailSent(true);
-
-      setTimeout(() => {
-        Alert.alert(
-          "Correo enviado",
-          "Revisa tu bandeja de entrada. Te hemos enviado un enlace para restablecer tu contraseña.",
-          [{ text: "Aceptar", onPress: () => router.replace("/") }]
-        );
-      }, 1000);
-
-      setEmail("");
+      setEmail(""); // Limpiar campo
+      router.replace("/EmailVerificationSent"); // Navegar a la vista de confirmación
     } catch (error) {
       console.error(error?.response?.data || error.message);
       Alert.alert(
@@ -57,302 +50,110 @@ export default function ForgotPassword() {
     }
   };
 
-  const handleGoBack = () => {
-    router.back();
-  };
-
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#6366f1" />
-
-      {/* Header con gradiente */}
-      <LinearGradient
-        colors={["#6366f1", "#8b5cf6", "#a855f7"]}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
-        <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
-          <Ionicons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-
-        <View style={styles.headerContent}>
-          <View style={styles.iconContainer}>
-            <Ionicons name="lock-closed" size={40} color="white" />
-          </View>
-          <Text style={styles.headerTitle}>Recuperar Contraseña</Text>
-          <Text style={styles.headerSubtitle}>
-            No te preocupes, te ayudamos a recuperar tu cuenta
-          </Text>
-        </View>
-      </LinearGradient>
-
-      {/* Contenido principal */}
-      <View style={styles.content}>
-        <View style={styles.card}>
-          {!isEmailSent ? (
-            <>
-              <Text style={styles.title}>Ingresa tu correo electrónico</Text>
-              <Text style={styles.subtitle}>
-                Te enviaremos un enlace seguro para restablecer tu contraseña
-              </Text>
-
-              <View style={styles.inputContainer}>
-                <View style={styles.inputIcon}>
-                  <Ionicons name="mail" size={20} color="#6366f1" />
-                </View>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Correo electronico"
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  placeholderTextColor="#94a3b8"
-                />
-              </View>
-
-              <TouchableOpacity
-                style={[styles.button, loading && styles.buttonDisabled]}
-                onPress={handleSendResetEmail}
-                disabled={loading}
-              >
-                <LinearGradient
-                  colors={["#6366f1", "#8b5cf6"]}
-                  style={styles.buttonGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                >
-                  {loading ? (
-                    <ActivityIndicator color="#fff" size="small" />
-                  ) : (
-                    <>
-                      <Ionicons name="send" size={18} color="white" />
-                      <Text style={styles.buttonText}>Enviar enlace</Text>
-                    </>
-                  )}
-                </LinearGradient>
-              </TouchableOpacity>
-            </>
-          ) : (
-            <View style={styles.successContainer}>
-              <View style={styles.successIcon}>
-                <Ionicons name="checkmark-circle" size={60} color="#10b981" />
-              </View>
-              <Text style={styles.successTitle}>¡Correo enviado!</Text>
-              <Text style={styles.successSubtitle}>
-                Revisa tu bandeja de entrada y sigue las instrucciones para
-                restablecer tu contraseña
-              </Text>
-            </View>
-          )}
-        </View>
-
-        {/* Enlaces adicionales */}
-        <View style={styles.linksContainer}>
-          <TouchableOpacity onPress={() => router.push("/login")}>
-            <Text style={styles.linkText}>
-              ¿Ya tienes cuenta? Inicia sesión
-            </Text>
-          </TouchableOpacity>
-        </View>
+    <SafeAreaView style={styles.container}>
+      <View style={[styles.logoContainer, { marginTop: insets.top }]}>
+        <LogoInmero width={150} height={140} />
       </View>
-    </View>
+
+      <Text style={styles.title}>Recuperar contraseña</Text>
+
+      <Text style={styles.subtitle}>
+        Ingresa tu correo electrónico y te enviaremos un enlace para restablecer
+        tu contraseña.
+      </Text>
+
+      <Text style={styles.label}>Correo electrónico</Text>
+      <View style={styles.inputContainer}>
+        <Ionicons name="mail-outline" size={20} color="#888" />
+        <TextInput
+          style={styles.input}
+          placeholder="Ingresa tu correo electrónico"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          value={email}
+          onChangeText={setEmail}
+        />
+      </View>
+
+      <TouchableOpacity
+        style={styles.loginButton}
+        onPress={handleSendResetEmail}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <>
+            <Text style={styles.loginButtonText}>
+              Enviar enlace de recuperación
+            </Text>
+            <Ionicons name="arrow-forward" size={18} color="#fff" />
+          </>
+        )}
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    paddingLeft: 24,
+    paddingRight: 24,
+    backgroundColor: "#fff",
   },
-  header: {
-    height: height * 0.35,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  backButton: {
-    position: "absolute",
-    top: 50,
-    left: 20,
-    zIndex: 1,
-    padding: 8,
-  },
-  headerContent: {
-    flex: 1,
-    justifyContent: "center",
+  logoContainer: {
     alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "white",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: "rgba(255, 255, 255, 0.8)",
-    textAlign: "center",
-    paddingHorizontal: 20,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    marginTop: -30,
-  },
-  card: {
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
-    marginBottom: 20,
-  },
-  stepIndicator: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  stepDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: "#e2e8f0",
-  },
-  stepActive: {
-    backgroundColor: "#6366f1",
-  },
-  stepLine: {
-    flex: 1,
-    height: 2,
-    backgroundColor: "#e2e8f0",
-    marginHorizontal: 8,
-  },
-  stepText: {
-    fontSize: 14,
-    color: "#6366f1",
-    fontWeight: "600",
-    marginBottom: 16,
+    marginTop: 20,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#1e293b",
-    marginBottom: 8,
+    fontSize: 26,
+    fontWeight: "bold",
+    marginTop: 10,
+    marginBottom: 10,
+    color: "#000",
   },
   subtitle: {
-    fontSize: 16,
-    color: "#64748b",
-    marginBottom: 24,
-    lineHeight: 24,
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 6,
+    color: "#555",
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#e2e8f0",
-    borderRadius: 16,
-    marginBottom: 24,
-    backgroundColor: "#f8fafc",
-    overflow: "hidden",
-  },
-  inputIcon: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: "rgba(99, 102, 241, 0.1)",
+    backgroundColor: "#f3f3f3",
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    marginBottom: 12,
+    height: 50,
+    gap: 10,
   },
   input: {
     flex: 1,
-    fontSize: 16,
-    color: "#1e293b",
-    paddingVertical: 16,
-    paddingRight: 16,
+    fontSize: 15,
+    color: "#000",
   },
-  button: {
-    borderRadius: 16,
-    overflow: "hidden",
-    shadowColor: "#6366f1",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  buttonGradient: {
+  loginButton: {
     flexDirection: "row",
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    backgroundColor: "#3686F7",
+    paddingVertical: 14,
+    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
-    gap: 8,
+    marginTop: 20,
+    gap: 10,
   },
-  buttonText: {
-    color: "white",
+  loginButtonText: {
+    color: "#fff",
     fontSize: 16,
-    fontWeight: "600",
-  },
-  successContainer: {
-    alignItems: "center",
-    paddingVertical: 20,
-  },
-  successIcon: {
-    marginBottom: 20,
-  },
-  successTitle: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#1e293b",
-    marginBottom: 12,
-  },
-  successSubtitle: {
-    fontSize: 16,
-    color: "#64748b",
-    textAlign: "center",
-    lineHeight: 24,
-  },
-  infoCard: {
-    flexDirection: "row",
-    backgroundColor: "rgba(99, 102, 241, 0.1)",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
-    alignItems: "center",
-  },
-  infoText: {
-    flex: 1,
-    marginLeft: 12,
-    fontSize: 14,
-    color: "#475569",
-    lineHeight: 20,
-  },
-  linksContainer: {
-    alignItems: "center",
-    gap: 16,
-  },
-  linkText: {
-    color: "#6366f1",
-    fontSize: 16,
-    fontWeight: "500",
+    fontWeight: "bold",
   },
 });

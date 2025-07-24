@@ -15,8 +15,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useMQTT } from "../../../hooks/useMQTT";
 import CustomHeader from "../../../components/CustomHeader";
 import { useSession } from "../../../context/SessionContext";
+import { useRouter } from "expo-router"; // ✅ Import necesario
 
 export default function iotScreen() {
+  const router = useRouter(); // ✅ Corrección: inicializar router
+
   const {
     connected,
     temperature,
@@ -93,7 +96,7 @@ export default function iotScreen() {
     };
 
     registerPushToken();
-  }, [username]); // ✅ Se ejecuta cuando username está disponible
+  }, [username]);
 
   const handleToggle = async (type) => {
     if (type === "bombillo") {
@@ -118,6 +121,7 @@ export default function iotScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <CustomHeader title="Panel IoT" backRoute="(tabs)/home" />
 
+        {/* Estado de conexión MQTT */}
         <View style={styles.statusContainer}>
           <View
             style={[
@@ -143,29 +147,18 @@ export default function iotScreen() {
           )}
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>🌡️ Temperatura y Humedad</Text>
-          <View style={styles.sensorRow}>
-            <View style={styles.sensorBlock}>
-              <Text style={styles.label}>Temperatura</Text>
-              <Text style={styles.value}>
-                {temperature !== null ? `${temperature}°C` : "--"}
-              </Text>
-            </View>
-            <View style={styles.sensorBlock}>
-              <Text style={styles.label}>Humedad</Text>
-              <Text style={styles.value}>
-                {humidity !== null ? `${humidity}%` : "--"}
-              </Text>
-            </View>
-          </View>
-          {lastUpdateTime && (
-            <Text style={styles.lastUpdate}>
-              Última actualización: {lastUpdateTime.toLocaleTimeString()}
-            </Text>
-          )}
-        </View>
+        {/* Card para ir a la gráfica */}
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => router.push("modules/IoT/temperatura")} // ✅ Ya funciona correctamente
+        >
+          <Text style={styles.cardTitle}>🌡️ Temperatura</Text>
+          <Text style={{ color: "#7f8c8d", fontSize: 14, marginTop: 6 }}>
+            Toca para ver detalles y gráfica
+          </Text>
+        </TouchableOpacity>
 
+        {/* Card: Bombillo */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>💡 Control de Bombillo</Text>
           <View style={styles.lightControlRow}>
@@ -179,6 +172,7 @@ export default function iotScreen() {
           </View>
         </View>
 
+        {/* Card: Ventilador */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>🌀 Control de Ventilador</Text>
           <View style={styles.lightControlRow}>
@@ -192,6 +186,7 @@ export default function iotScreen() {
           </View>
         </View>
 
+        {/* Card: Tanque */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>🚰 Nivel del Tanque</Text>
           <View style={styles.tankContainer}>
