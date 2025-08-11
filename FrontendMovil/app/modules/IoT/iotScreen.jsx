@@ -15,10 +15,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useMQTT } from "../../../hooks/useMQTT";
 import CustomHeader from "../../../components/CustomHeader";
 import { useSession } from "../../../context/SessionContext";
-import { useRouter } from "expo-router"; // ✅ Import necesario
+import { useRouter } from "expo-router";
 
 export default function iotScreen() {
-  const router = useRouter(); // ✅ Corrección: inicializar router
+  const router = useRouter();
 
   const {
     connected,
@@ -36,17 +36,35 @@ export default function iotScreen() {
 
   const [nivel, setNivel] = useState(0);
   const [animacionNivel] = useState(new Animated.Value(0));
+  const [distanciaUltrasonico, setDistanciaUltrasonico] = useState(0);
 
-  const { username } = useSession(); // ✅ usamos username del contexto
+  const { username } = useSession();
 
   // Animación del nivel del tanque
+  const ALTURA_TANQUE_CM = 100; // Cambia este valor si tu tanque tiene otra altura real
+
   useEffect(() => {
-    if (lastMessage?.topic === "tanque/nivel") {
-      const valor = parseFloat(lastMessage.message);
-      if (!isNaN(valor)) {
-        setNivel(valor);
+    if (lastMessage?.topic === "sensor/agua/ultrasonico") {
+      console.log("📡 Sensor Ultrasónico - Mensaje recibido:", {
+        topic: lastMessage.topic,
+        message: lastMessage.message,
+        timestamp: new Date().toLocaleTimeString(),
+      });
+
+      const distancia = parseFloat(lastMessage.message);
+      if (!isNaN(distancia)) {
+        console.log("📏 Distancia detectada:", distancia, "cm");
+        setDistanciaUltrasonico(distancia);
+
+        // Calcular nivel como porcentaje
+        const nivelCalculado = Math.max(
+          0,
+          Math.min(100, (distancia / ALTURA_TANQUE_CM) * 100)
+        );
+
+        setNivel(nivelCalculado); // reusa el mismo "nivel" que usas para animar el tanque
         Animated.timing(animacionNivel, {
-          toValue: valor,
+          toValue: nivelCalculado,
           duration: 500,
           useNativeDriver: false,
         }).start();
@@ -59,7 +77,6 @@ export default function iotScreen() {
     outputRange: ["0%", "100%"],
   });
 
-  // ✅ Enviar el token push al backend con el userId correcto
   useEffect(() => {
     const registerPushToken = async () => {
       if (!Device.isDevice || !username) {
@@ -91,7 +108,7 @@ export default function iotScreen() {
           }),
         });
       } catch (error) {
-        console.error("❌ Error enviando token al backend:", error);
+        console.error("Error enviando token al backend:", error);
       }
     };
 
@@ -147,15 +164,39 @@ export default function iotScreen() {
           )}
         </View>
 
-        {/* Card para ir a la gráfica */}
         <TouchableOpacity
-          style={styles.card}
-          onPress={() => router.push("modules/IoT/temperatura")} // ✅ Ya funciona correctamente
+          style={styles.infoCard}
+          onPress={() => router.push("modules/IoT/temperatura")}
         >
-          <Text style={styles.cardTitle}>🌡️ Temperatura</Text>
-          <Text style={{ color: "#7f8c8d", fontSize: 14, marginTop: 6 }}>
-            Toca para ver detalles y gráfica
-          </Text>
+          {/* Temperatura */}
+          <View style={styles.infoSection}>
+            <Text style={styles.icon}>🌡️</Text>
+            <View>
+              <Text style={styles.valueText}>
+                {temperature !== null ? `${temperature}°C` : "--"}
+              </Text>
+              <Text style={styles.labelText}>Temperatura</Text>
+            </View>
+          </View>
+
+          {/* Separador vertical */}
+          <View style={styles.separator} />
+
+          {/* Humedad */}
+          <View style={styles.infoSection}>
+            <Text style={styles.icon}>💧</Text>
+            <View>
+              <Text style={styles.valueText}>
+                {humidity !== null ? `${humidity}%` : "--"}
+              </Text>
+              <Text style={styles.labelText}>Humedad</Text>
+            </View>
+          </View>
+
+          {/* Flecha derecha */}
+          <View style={styles.arrowContainer}>
+            <Text style={{ fontSize: 18, color: "#bdc3c7" }}>↗</Text>
+          </View>
         </TouchableOpacity>
 
         {/* Card: Bombillo */}
@@ -186,6 +227,49 @@ export default function iotScreen() {
           </View>
         </View>
 
+        {/* Card: Sensor Ultrasónico */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>📏 Sensor Ultrasónico</Text>
+          <View style={styles.sensorRow}>
+            <View style={styles.sensorBlock}>
+              <Text style={styles.label}>Distancia</Text>
+              <Text style={styles.value}>
+                {distanciaUltrasonico > 0
+                  ? distanciaUltrasonico.toFixed(1)
+                  : "--"}{" "}
+                cm
+              </Text>
+            </View>
+            <View style={styles.sensorBlock}>
+              <Text style={styles.label}>Estado</Text>
+              <Text
+                style={[
+                  styles.value,
+                  {
+                    color:
+                      distanciaUltrasonico === 0
+                        ? "#95a5a6"
+                        : distanciaUltrasonico < 10
+                        ? "#e74c3c"
+                        : distanciaUltrasonico < 20
+                        ? "#f39c12"
+                        : "#27ae60",
+                    fontSize: 16,
+                  },
+                ]}
+              >
+                {distanciaUltrasonico === 0
+                  ? "Sin datos"
+                  : distanciaUltrasonico < 10
+                  ? "Muy cerca"
+                  : distanciaUltrasonico < 20
+                  ? "Cerca"
+                  : "Lejos"}
+              </Text>
+            </View>
+          </View>
+        </View>
+
         {/* Card: Tanque */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>🚰 Nivel del Tanque</Text>
@@ -210,7 +294,6 @@ export default function iotScreen() {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -336,5 +419,45 @@ const styles = StyleSheet.create({
     textShadowColor: "#000",
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
+  },
+  infoCard: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
+    alignItems: "center",
+    justifyContent: "space-between",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    marginBottom: 16,
+  },
+  infoSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  icon: {
+    fontSize: 20,
+    color: "#74b9ff",
+  },
+  valueText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#2c3e50",
+  },
+  labelText: {
+    fontSize: 12,
+    color: "#7f8c8d",
+  },
+  separator: {
+    width: 1,
+    height: 32,
+    backgroundColor: "#ecf0f1",
+  },
+  arrowContainer: {
+    marginLeft: 8,
   },
 });

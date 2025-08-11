@@ -93,7 +93,7 @@ export default function LoginScreen() {
         return;
       }
 
-      router.replace("/company/company");
+      router.replace("/company/selection");
 
       if (Device.isDevice) {
         const { status: existingStatus } =
@@ -127,7 +127,6 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Logo */}
       <View style={[styles.logoContainer, { marginTop: insets.top + 0 }]}>
         <LogoInmero width={150} height={140} />
       </View>
@@ -136,7 +135,6 @@ export default function LoginScreen() {
 
       {error !== "" && <Text style={styles.error}>{error}</Text>}
 
-      {/* Correo */}
       <Text style={styles.label}>Correo Electrónico</Text>
       <View style={styles.inputContainer}>
         <Ionicons name="mail-outline" size={20} color="#888" />
@@ -150,7 +148,6 @@ export default function LoginScreen() {
         />
       </View>
 
-      {/* Contraseña */}
       <Text style={styles.label}>Contraseña</Text>
       <View style={styles.inputContainer}>
         <Ionicons name="lock-closed-outline" size={20} color="#888" />
@@ -170,25 +167,21 @@ export default function LoginScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Botón Iniciar sesión */}
       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
         <Text style={styles.loginButtonText}>Iniciar sesión</Text>
         <Ionicons name="arrow-forward" size={18} color="#fff" />
       </TouchableOpacity>
 
-      {/* ¿Olvidaste tu contraseña? */}
       <TouchableOpacity onPress={() => router.push("/forgotPassword")}>
         <Text style={styles.linkText}>¿Olvidaste tu contraseña?</Text>
       </TouchableOpacity>
 
-      {/* Separador */}
       <View style={styles.dividerContainer}>
         <View style={styles.divider} />
         <Text style={styles.dividerText}>o</Text>
         <View style={styles.divider} />
       </View>
 
-      {/* Registro */}
       <View style={styles.footer}>
         <Text style={{ color: "#555" }}>¿No tienes una cuenta? </Text>
         <TouchableOpacity onPress={() => router.push("/register")}>

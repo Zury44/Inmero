@@ -12,9 +12,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
-import { useSession } from "../../context/SessionContext"; // Ajusta si cambia la ruta
+import { useSession } from "../../context/SessionContext";
 
-// Simulación de datos de usuario — reemplace con datos reales del contexto o props
 const mockUser = {
   nombre: "Juan",
   apellido: "Pérez",

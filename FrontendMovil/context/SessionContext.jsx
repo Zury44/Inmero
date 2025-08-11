@@ -57,6 +57,27 @@ export const SessionProvider = ({ children }) => {
       console.error("Error al cerrar sesión:", error);
     }
   };
+  const guardarSesionSeleccion = async ({
+    token,
+    empresaId,
+    rolId,
+    empresaNombre,
+    rolNombre,
+  }) => {
+    try {
+      await AsyncStorage.setItem("token", token);
+      setTokenState(token);
+
+      setEmpresaSeleccionada({
+        empresaId,
+        empresaNombre,
+        rolId,
+        rolNombre,
+      });
+    } catch (error) {
+      console.error("Error guardando la sesión seleccionada:", error);
+    }
+  };
 
   return (
     <SessionContext.Provider
@@ -70,6 +91,7 @@ export const SessionProvider = ({ children }) => {
         username,
         setUsername,
         cerrarSesion,
+        guardarSesionSeleccion,
       }}
     >
       {children}

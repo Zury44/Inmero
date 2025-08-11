@@ -42,6 +42,15 @@ export const useMQTT = () => {
 
   const clientRef = useRef(null);
 
+  // Lista de tópicos a suscribirse
+  const topics = [
+    MQTT_TOPIC, // Tu tópico principal (temperatura/humedad)
+    "tanque/nivel",
+    "sensor/agua/ultrasonico",
+    "sensor/bombillo",
+    "sensor/ventilador",
+  ];
+
   useEffect(() => {
     if (clientRef.current) return;
 
@@ -63,9 +72,18 @@ export const useMQTT = () => {
       console.log("✅ Conectado al broker MQTT");
       setConnected(true);
       setIsConnecting(false);
-      client.subscribe(MQTT_TOPIC, { qos: 0 }, (err) => {
-        if (err) {
-          console.error("❌ Error al suscribirse:", err);
+
+      // Suscribirse a múltiples tópicos
+      topics.forEach((topic) => {
+        if (topic) {
+          // Verificar que el tópico no sea undefined
+          client.subscribe(topic, { qos: 0 }, (err) => {
+            if (err) {
+              console.error(`❌ Error al suscribirse a ${topic}:`, err);
+            } else {
+              console.log(`✅ Suscrito a: ${topic}`);
+            }
+          });
         }
       });
     });
@@ -86,6 +104,7 @@ export const useMQTT = () => {
       console.log(`📩 Mensaje recibido [${topic}]: ${payload}`);
       setLastMessage({ topic, message: payload });
 
+      // Manejar diferentes tipos de mensajes según el tópico
       if (topic === MQTT_TOPIC) {
         try {
           const data = JSON.parse(payload);
@@ -99,6 +118,7 @@ export const useMQTT = () => {
           console.error("❌ Error al parsear JSON:", error);
         }
       }
+      // Los demás tópicos se manejan directamente en los componentes usando lastMessage
     });
 
     client.on("error", (err) => {
@@ -129,6 +149,8 @@ export const useMQTT = () => {
     clientRef.current.publish(topic, payload, { qos: 0 }, (err) => {
       if (err) {
         console.error("❌ Error al publicar:", err);
+      } else {
+        console.log(`✅ Mensaje publicado exitosamente a ${topic}`);
       }
     });
   };

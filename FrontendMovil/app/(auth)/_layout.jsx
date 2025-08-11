@@ -8,7 +8,7 @@ import {
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import * as Notifications from "expo-notifications"; // ✅ agregado
+import * as Notifications from "expo-notifications";
 import { useEffect } from "react";
 import { ActivityIndicator, LogBox, View } from "react-native";
 
@@ -32,7 +32,7 @@ export default function AuthLayout() {
       "Support for defaultProps will be removed from function components",
     ]);
 
-    // ✅ Manejador para mostrar notificaciones en foreground
+    //Manejador para mostrar notificaciones en foreground
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
         shouldShowAlert: true,
@@ -41,14 +41,13 @@ export default function AuthLayout() {
       }),
     });
 
-    // (opcional) Ver notificación en consola
     const subscription = Notifications.addNotificationReceivedListener(
       (notification) => {
         console.log("📥 Notificación recibida en foreground:", notification);
       }
     );
 
-    return () => subscription.remove(); // limpia el listener al desmontar
+    return () => subscription.remove();
   }, []);
 
   useEffect(() => {

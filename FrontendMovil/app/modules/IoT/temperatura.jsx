@@ -8,75 +8,53 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
-// import { useMQTT } from "../../../hooks/useMQTT"; // Comentado para simulación
+import { Ionicons } from "@expo/vector-icons";
+
+import { useRouter } from "expo-router";
+import { useMQTT } from "../../../hooks/useMQTT";
 
 const screenWidth = Dimensions.get("window").width;
 const maxPoints = 10;
 
 export default function Temperatura() {
-  // Simulando datos MQTT
-  const [temperature, setTemperature] = useState(24);
-  const [humidity, setHumidity] = useState(60);
-  const [lastUpdateTime] = useState(new Date());
+  const { temperature, humidity, lastUpdateTime } = useMQTT();
+  const router = useRouter();
 
-  const [temperatures, setTemperatures] = useState([
-    22, 23, 25, 28, 32, 29, 26, 24, 23, 24,
-  ]);
-  const [labels, setLabels] = useState([
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-  ]);
+  const [temperatures, setTemperatures] = useState([]);
+  const [labels, setLabels] = useState([]);
   const [currentTime, setCurrentTime] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState("Diario");
 
-  // Simular actualizaciones de datos cada 3 segundos
   useEffect(() => {
-    const interval = setInterval(() => {
-      // Generar temperatura aleatoria entre 20-35°C
-      const newTemp = Math.round((Math.random() * 15 + 20) * 10) / 10;
-      // Generar humedad aleatoria entre 40-80%
-      const newHumidity = Math.round(Math.random() * 40 + 40);
+    if (temperature === null || isNaN(temperature)) return;
 
-      setTemperature(newTemp);
-      setHumidity(newHumidity);
+    const now = new Date();
+    const timeLabel = now
+      .toLocaleTimeString("es-CO", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      })
+      .replace("a. m.", "am")
+      .replace("p. m.", "pm");
 
-      const now = new Date();
-      const timeLabel = now
-        .toLocaleTimeString("es-CO", {
-          hour: "numeric",
-          minute: "2-digit",
-          hour12: true,
-        })
-        .replace("a. m.", "am")
-        .replace("p. m.", "pm");
+    setTemperatures((prev) => {
+      const updated = [...prev, parseFloat(temperature)];
+      if (updated.length > maxPoints) updated.shift();
+      return updated;
+    });
 
-      setCurrentTime(timeLabel);
+    setLabels((prev) => {
+      const updated = [...prev, timeLabel];
+      if (updated.length > maxPoints) updated.shift();
+      return updated;
+    });
 
-      setTemperatures((prev) => {
-        const updated = [...prev, newTemp];
-        if (updated.length > maxPoints) updated.shift();
-        return updated;
-      });
+    setCurrentTime(timeLabel);
+  }, [temperature]);
 
-      setLabels((prev) => {
-        const updated = [...prev, timeLabel];
-        if (updated.length > maxPoints) updated.shift();
-        return updated;
-      });
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const isValidData = temperatures.length >= 2;
+  const isValidData =
+    temperatures.length >= 2 && temperatures.every((n) => isFinite(n));
 
   const spacedLabels = labels.map((label, index) => {
     const lastIndex = labels.length - 1;
@@ -96,8 +74,11 @@ export default function Temperatura() {
     <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
-          <Text style={styles.backIcon}>←</Text>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
         <View>
           <Text style={styles.title}>Temperatura</Text>
@@ -159,7 +140,7 @@ export default function Temperatura() {
               backgroundColor: "transparent",
               backgroundGradientFrom: "#f8f9fa",
               backgroundGradientTo: "#f8f9fa",
-              decimalPlaces: 0,
+              decimalPlaces: 1,
               color: (opacity = 1) => `rgba(74, 144, 226, ${opacity})`,
               labelColor: (opacity = 1) => `rgba(128, 128, 128, ${opacity})`,
               style: {
@@ -215,7 +196,7 @@ export default function Temperatura() {
 
       {lastUpdateTime && (
         <Text style={styles.lastUpdate}>
-          Última actualización: {new Date().toLocaleTimeString()}
+          Última actualización: {lastUpdateTime.toLocaleTimeString()}
         </Text>
       )}
     </ScrollView>
@@ -223,90 +204,65 @@ export default function Temperatura() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8f9fa",
-  },
+  container: { flex: 1, padding: 16, backgroundColor: "#fff" },
   header: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
+    alignItems: "center",
+    marginBottom: 16,
+    marginTop: 20,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  backIcon: {
-    fontSize: 24,
-    color: "#333",
+    marginRight: 16,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
   },
   subtitle: {
     fontSize: 14,
     color: "#666",
-    textAlign: "center",
-    marginTop: 4,
   },
   date: {
     fontSize: 12,
     color: "#999",
-    textAlign: "center",
-    marginTop: 8,
   },
   menuButton: {
-    width: 40,
-    height: 40,
-    justifyContent: "center",
-    alignItems: "center",
+    marginLeft: "auto",
   },
   menuIcon: {
     fontSize: 24,
+    fontWeight: "bold",
     color: "#333",
-    transform: [{ rotate: "90deg" }],
   },
   periodContainer: {
     flexDirection: "row",
-    marginHorizontal: 20,
-    marginBottom: 30,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 25,
-    padding: 4,
+    justifyContent: "center",
+    marginBottom: 16,
   },
   periodButton: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginHorizontal: 8,
     borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#4a90e2",
   },
   periodButtonActive: {
     backgroundColor: "#4a90e2",
   },
   periodText: {
-    fontSize: 14,
-    color: "#666",
-    fontWeight: "500",
+    color: "#4a90e2",
+    fontWeight: "600",
   },
   periodTextActive: {
-    color: "white",
-    fontWeight: "600",
+    color: "#fff",
   },
   chartContainer: {
     alignItems: "center",
-    paddingHorizontal: 16,
-    marginBottom: 30,
   },
   chart: {
-    borderRadius: 0,
+    marginVertical: 8,
+    borderRadius: 16,
   },
   loadingContainer: {
     height: 280,
@@ -314,35 +270,30 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   loadingText: {
-    color: "#666",
     fontSize: 16,
+    color: "#999",
   },
   dataContainer: {
     flexDirection: "row",
-    paddingHorizontal: 40,
     justifyContent: "space-around",
-    marginBottom: 30,
+    marginTop: 24,
   },
   dataCard: {
     alignItems: "center",
-    flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: "#f0f4f8",
+    width: "40%",
   },
   iconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: "#e8f4fd",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 8,
   },
   icon: {
-    fontSize: 24,
+    fontSize: 28,
   },
   dataValue: {
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: "bold",
-    color: "#333",
     marginBottom: 4,
   },
   dataLabel: {
@@ -350,9 +301,9 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   lastUpdate: {
-    color: "#999",
-    fontSize: 12,
     textAlign: "center",
-    marginBottom: 20,
+    marginTop: 16,
+    fontSize: 12,
+    color: "#999",
   },
 });

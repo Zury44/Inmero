@@ -151,6 +151,6 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 10,
     marginBottom: 85,
-    alignItems: "center", // ✅ esto centra horizontalmente
+    alignItems: "center",
   },
 });

@@ -37,8 +37,8 @@ export default function ForgotPassword() {
       setLoading(true);
       await axios.post(`${API_URL}/auth/forgot-password`, { email });
 
-      setEmail(""); // Limpiar campo
-      router.replace("/EmailVerificationSent"); // Navegar a la vista de confirmación
+      setEmail("");
+      router.replace("/EmailVerificationSent");
     } catch (error) {
       console.error(error?.response?.data || error.message);
       Alert.alert(

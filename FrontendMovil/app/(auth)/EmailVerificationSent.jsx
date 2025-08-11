@@ -16,26 +16,22 @@ export default function CorreoEnviado() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Logo superior */}
       <View style={[styles.logoContainer, { marginTop: insets.top + 0 }]}>
         <LogoInmero width={150} height={140} />
       </View>
 
-      {/* Imagen central */}
       <Image
-        source={require("../../assets/images/emailsent.png")} // Ajusta la ruta según tu estructura
+        source={require("../../assets/images/emailsent.png")}
         style={styles.image}
         resizeMode="contain"
       />
 
-      {/* Título y mensaje */}
       <Text style={styles.title}>¡Revisa tu correo!</Text>
       <Text style={styles.description}>
         Te hemos enviado un enlace para restablecer tu contraseña. Por favor,
         revisa tu bandeja de entrada.
       </Text>
 
-      {/* Espaciado y botón para volver */}
       <View style={styles.footer}>
         <TouchableOpacity onPress={() => router.replace("/login")}>
           <Text style={styles.linkText}>Volver a iniciar sesión</Text>
@@ -81,7 +77,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   footer: {
-    marginTop: 60, // ← Aquí aumentamos el espaciado
+    marginTop: 60,
   },
   linkText: {
     fontSize: 15,
