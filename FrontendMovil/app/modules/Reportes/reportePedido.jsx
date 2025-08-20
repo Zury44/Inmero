@@ -9,13 +9,14 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   TextInput,
+  SafeAreaView,
 } from "react-native";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import Constants from "expo-constants";
 import { Picker } from "@react-native-picker/picker";
 import { useSession } from "../../../context/SessionContext";
-
+import HeaderHome from "../../../components/HeaderHome";
 const { API_URL } = Constants.expoConfig.extra;
 
 const endpoints = {
@@ -546,169 +547,186 @@ export default function PedidoReporte() {
 
   if (loadingData) {
     return (
-      <View style={styles.loadingContainer}>
+      <SafeAreaView style={styles.loadingContainer}>
+        <View style={styles.statusBarSpacer} />
         <ActivityIndicator size="large" color="#0066cc" />
         <Text style={styles.loadingText}>Cargando datos...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Reporte de Gestión de Pedido</Text>
+    <View style={styles.safeArea}>
+      <View style={styles.statusBarSpacer} />
+      <HeaderHome />
 
-      {/* Filtros de ubicación */}
-      {renderPicker("País", paises, selected.paisId, handlePaisChange)}
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Reporte de Pedido</Text>
 
-      {renderPicker(
-        "Departamento",
-        departamentos,
-        selected.departamentoId,
-        handleDepartamentoChange,
-        selected.paisId !== null
-      )}
+        {/* Filtros de ubicación */}
+        {renderPicker("País", paises, selected.paisId, handlePaisChange)}
 
-      {renderPicker(
-        "Municipio",
-        municipios,
-        selected.municipioId,
-        handleMunicipioChange,
-        selected.departamentoId !== null
-      )}
+        {renderPicker(
+          "Departamento",
+          departamentos,
+          selected.departamentoId,
+          handleDepartamentoChange,
+          selected.paisId !== null
+        )}
 
-      {renderPicker(
-        "Sede",
-        sedes,
-        selected.sedeId,
-        handleSedeChange,
-        selected.municipioId !== null
-      )}
+        {renderPicker(
+          "Municipio",
+          municipios,
+          selected.municipioId,
+          handleMunicipioChange,
+          selected.departamentoId !== null
+        )}
 
-      {renderPicker(
-        "Bloque",
-        bloques,
-        selected.bloqueId,
-        handleBloqueChange,
-        selected.sedeId !== null
-      )}
+        {renderPicker(
+          "Sede",
+          sedes,
+          selected.sedeId,
+          handleSedeChange,
+          selected.municipioId !== null
+        )}
 
-      {renderPicker(
-        "Espacio",
-        espacios,
-        selected.espacioId,
-        handleEspacioChange,
-        selected.bloqueId !== null
-      )}
+        {renderPicker(
+          "Bloque",
+          bloques,
+          selected.bloqueId,
+          handleBloqueChange,
+          selected.sedeId !== null
+        )}
 
-      {renderPicker(
-        "Almacén",
-        almacenes,
-        selected.almacenId,
-        (v) => setSelected({ ...selected, almacenId: v }),
-        selected.espacioId !== null
-      )}
+        {renderPicker(
+          "Espacio",
+          espacios,
+          selected.espacioId,
+          handleEspacioChange,
+          selected.bloqueId !== null
+        )}
 
-      {/* Filtros de producto */}
-      {renderPicker("Producto", productos, selected.productoId, (v) =>
-        setSelected({ ...selected, productoId: v })
-      )}
+        {renderPicker(
+          "Almacén",
+          almacenes,
+          selected.almacenId,
+          (v) => setSelected({ ...selected, almacenId: v }),
+          selected.espacioId !== null
+        )}
 
-      {renderPicker(
-        "Categoría Producto",
-        categorias,
-        selected.categoriaId,
-        (v) => setSelected({ ...selected, categoriaId: v })
-      )}
+        {/* Filtros de producto */}
+        {renderPicker("Producto", productos, selected.productoId, (v) =>
+          setSelected({ ...selected, productoId: v })
+        )}
 
-      {/* Selección de pedido */}
-      {renderPicker("Pedido", pedidos, selected.pedidoId, (v) =>
-        setSelected({ ...selected, pedidoId: v })
-      )}
+        {renderPicker(
+          "Categoría Producto",
+          categorias,
+          selected.categoriaId,
+          (v) => setSelected({ ...selected, categoriaId: v })
+        )}
 
-      {/* Campo de categoría estado */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Categoría Estado *</Text>
-        <TextInput
-          style={styles.textInput}
-          value={categoriaEstadoId}
-          onChangeText={setCategoriaEstadoId}
-          placeholder="Ingrese ID de categoría estado"
-          keyboardType="numeric"
-        />
-      </View>
+        {/* Selección de pedido */}
+        {renderPicker("Pedido", pedidos, selected.pedidoId, (v) =>
+          setSelected({ ...selected, pedidoId: v })
+        )}
 
-      {/* Botones de acción */}
-      <View style={styles.buttonContainer}>
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={[styles.button, styles.searchButton]}
-            onPress={buscarPedido}
-            disabled={loadingPedido || !selected.pedidoId}
-          >
-            <Text style={styles.buttonText}>
-              {loadingPedido ? "Buscando..." : "Buscar Pedido"}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.button,
-              styles.reportButton,
-              (!selected.pedidoId || !categoriaEstadoId || generatingReport) &&
-                styles.buttonDisabled,
-            ]}
-            onPress={generarReporte}
-            disabled={
-              !selected.pedidoId || !categoriaEstadoId || generatingReport
-            }
-          >
-            <Text style={styles.buttonText}>
-              {generatingReport ? "Generando..." : "Generar Reporte"}
-            </Text>
-          </TouchableOpacity>
+        {/* Campo de categoría estado */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Categoría Estado *</Text>
+          <TextInput
+            style={styles.textInput}
+            value={categoriaEstadoId}
+            onChangeText={setCategoriaEstadoId}
+            placeholder="Ingrese ID de categoría estado"
+            keyboardType="numeric"
+          />
         </View>
-      </View>
 
-      {/* Información del pedido */}
-      {pedidoData && (
-        <View style={styles.pedidoInfo}>
-          <Text style={styles.sectionTitle}>Información del Pedido</Text>
-          <View style={styles.infoCard}>
-            <Text style={styles.infoText}>ID: {pedidoData.id}</Text>
-            {pedidoData.fecha && (
-              <Text style={styles.infoText}>
-                Fecha: {new Date(pedidoData.fecha).toLocaleDateString("es-ES")}
+        {/* Botones de acción */}
+        <View style={styles.buttonContainer}>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={[styles.button, styles.searchButton]}
+              onPress={buscarPedido}
+              disabled={loadingPedido || !selected.pedidoId}
+            >
+              <Text style={styles.buttonText}>
+                {loadingPedido ? "Buscando..." : "Buscar Pedido"}
               </Text>
-            )}
-            {pedidoData.estado && (
-              <Text style={styles.infoText}>Estado: {pedidoData.estado}</Text>
-            )}
-            <Text style={styles.infoText}>
-              Artículos: {articulos.length} elementos
-            </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.button,
+                styles.reportButton,
+                (!selected.pedidoId ||
+                  !categoriaEstadoId ||
+                  generatingReport) &&
+                  styles.buttonDisabled,
+              ]}
+              onPress={generarReporte}
+              disabled={
+                !selected.pedidoId || !categoriaEstadoId || generatingReport
+              }
+            >
+              <Text style={styles.buttonText}>
+                {generatingReport ? "Generando..." : "Generar Reporte"}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
-      )}
 
-      {/* Loading indicators */}
-      {(loadingPedido || generatingReport) && (
-        <View style={styles.loadingReport}>
-          <ActivityIndicator size="small" color="#0066cc" />
-          <Text style={styles.loadingReportText}>
-            {loadingPedido
-              ? "Cargando datos del pedido..."
-              : "Generando reporte..."}
-          </Text>
-        </View>
-      )}
-    </ScrollView>
+        {/* Información del pedido */}
+        {pedidoData && (
+          <View style={styles.pedidoInfo}>
+            <Text style={styles.sectionTitle}>Información del Pedido</Text>
+            <View style={styles.infoCard}>
+              <Text style={styles.infoText}>ID: {pedidoData.id}</Text>
+              {pedidoData.fecha && (
+                <Text style={styles.infoText}>
+                  Fecha:{" "}
+                  {new Date(pedidoData.fecha).toLocaleDateString("es-ES")}
+                </Text>
+              )}
+              {pedidoData.estado && (
+                <Text style={styles.infoText}>Estado: {pedidoData.estado}</Text>
+              )}
+              <Text style={styles.infoText}>
+                Artículos: {articulos.length} elementos
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {/* Loading indicators */}
+        {(loadingPedido || generatingReport) && (
+          <View style={styles.loadingReport}>
+            <ActivityIndicator size="small" color="#0066cc" />
+            <Text style={styles.loadingReportText}>
+              {loadingPedido
+                ? "Cargando datos del pedido..."
+                : "Generando reporte..."}
+            </Text>
+          </View>
+        )}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#ffffffff",
+  },
+  statusBarSpacer: {
+    height: Constants.statusBarHeight || 44, // 44px es el altura típica del notch/status bar en iOS
+    backgroundColor: "#f5f5f5",
+  },
   container: {
     padding: 16,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#ffffffff",
   },
   title: {
     fontSize: 24,
@@ -786,10 +804,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   searchButton: {
-    backgroundColor: "#17a2b8",
+    backgroundColor: "#388f4bff",
   },
   reportButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#388f4bff",
   },
   buttonDisabled: {
     backgroundColor: "#ccc",

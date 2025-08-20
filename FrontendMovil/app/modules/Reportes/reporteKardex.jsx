@@ -16,6 +16,7 @@ import Constants from "expo-constants";
 import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useSession } from "../../../context/SessionContext";
+import HeaderHome from "../../../components/HeaderHome";
 
 const { API_URL } = Constants.expoConfig.extra;
 
@@ -624,6 +625,7 @@ export default function KardexReporte() {
   if (loadingData) {
     return (
       <View style={styles.loadingContainer}>
+        <View style={styles.statusBarSpacer} />
         <ActivityIndicator size="large" color="#0066cc" />
         <Text style={styles.loadingText}>Cargando datos...</Text>
       </View>
@@ -631,147 +633,161 @@ export default function KardexReporte() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Reporte Kardex</Text>
+    <View style={styles.safeArea}>
+      <View style={styles.statusBarSpacer} />
+      <HeaderHome />
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Reporte Kardex</Text>
 
-      {renderPicker("País", paises, selected.paisId, handlePaisChange)}
+        {renderPicker("País", paises, selected.paisId, handlePaisChange)}
 
-      {renderPicker(
-        "Departamento",
-        departamentos,
-        selected.departamentoId,
-        handleDepartamentoChange,
-        selected.paisId !== null
-      )}
-
-      {renderPicker(
-        "Municipio",
-        municipios,
-        selected.municipioId,
-        handleMunicipioChange,
-        selected.departamentoId !== null
-      )}
-
-      {renderPicker(
-        "Sede",
-        sedes,
-        selected.sedeId,
-        handleSedeChange,
-        selected.municipioId !== null
-      )}
-
-      {renderPicker(
-        "Bloque",
-        bloques,
-        selected.bloqueId,
-        handleBloqueChange,
-        selected.sedeId !== null
-      )}
-
-      {renderPicker(
-        "Espacio",
-        espacios,
-        selected.espacioId,
-        handleEspacioChange,
-        selected.bloqueId !== null
-      )}
-
-      {renderPicker(
-        "Almacén",
-        almacenes,
-        selected.almacenId,
-        (v) => setSelected({ ...selected, almacenId: v }),
-        selected.espacioId !== null
-      )}
-
-      {renderPicker("Categoría", categorias, selected.categoriaId, (v) =>
-        setSelected({ ...selected, categoriaId: v })
-      )}
-
-      {renderPicker("Producto", productos, selected.productoId, (v) =>
-        setSelected({ ...selected, productoId: v })
-      )}
-
-      {/* Sección de fechas mejorada */}
-      <View style={styles.dateSection}>
-        {/* Fecha Inicio */}
-        <View style={styles.dateInputContainer}>
-          <Text style={styles.dateLabel}>Fecha Inicio:</Text>
-          <TouchableOpacity
-            style={styles.dateButton}
-            onPress={() => setShowDatePickerInicio(true)}
-          >
-            <Text style={styles.dateButtonText}>{formatDate(fechaInicio)}</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Fecha Fin */}
-        <View style={styles.dateInputContainer}>
-          <Text style={styles.dateLabel}>Fecha Fin:</Text>
-          <TouchableOpacity
-            style={styles.dateButton}
-            onPress={() => setShowDatePickerFin(true)}
-          >
-            <Text style={styles.dateButtonText}>{formatDate(fechaFin)}</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* DatePickers */}
-        {showDatePickerInicio && (
-          <DateTimePicker
-            value={fechaInicio}
-            mode="date"
-            display="default"
-            onChange={handleFechaInicioChange}
-            maximumDate={new Date()}
-          />
+        {renderPicker(
+          "Departamento",
+          departamentos,
+          selected.departamentoId,
+          handleDepartamentoChange,
+          selected.paisId !== null
         )}
 
-        {showDatePickerFin && (
-          <DateTimePicker
-            value={fechaFin}
-            mode="date"
-            display="default"
-            onChange={handleFechaFinChange}
-            minimumDate={fechaInicio}
-            maximumDate={new Date()}
-          />
+        {renderPicker(
+          "Municipio",
+          municipios,
+          selected.municipioId,
+          handleMunicipioChange,
+          selected.departamentoId !== null
         )}
 
-        {/* Información del rango */}
-        <View style={styles.dateInfo}>
-          <Text style={styles.dateInfoText}>
-            Rango seleccionado:{" "}
-            {Math.ceil(
-              Math.abs(fechaFin - fechaInicio) / (1000 * 60 * 60 * 24)
-            ) + 1}{" "}
-            días
-          </Text>
-        </View>
-      </View>
+        {renderPicker(
+          "Sede",
+          sedes,
+          selected.sedeId,
+          handleSedeChange,
+          selected.municipioId !== null
+        )}
 
-      <View style={styles.buttonContainer}>
-        <Button
-          title={generatingReport ? "Generando..." : "Generar Reporte"}
-          onPress={generarReporte}
-          disabled={generatingReport || !empresaSeleccionada?.empresaId}
-        />
-      </View>
+        {renderPicker(
+          "Bloque",
+          bloques,
+          selected.bloqueId,
+          handleBloqueChange,
+          selected.sedeId !== null
+        )}
 
-      {generatingReport && (
-        <View style={styles.loadingReport}>
-          <ActivityIndicator size="small" color="#0066cc" />
-          <Text style={styles.loadingReportText}>Generando reporte...</Text>
+        {renderPicker(
+          "Espacio",
+          espacios,
+          selected.espacioId,
+          handleEspacioChange,
+          selected.bloqueId !== null
+        )}
+
+        {renderPicker(
+          "Almacén",
+          almacenes,
+          selected.almacenId,
+          (v) => setSelected({ ...selected, almacenId: v }),
+          selected.espacioId !== null
+        )}
+
+        {renderPicker("Categoría", categorias, selected.categoriaId, (v) =>
+          setSelected({ ...selected, categoriaId: v })
+        )}
+
+        {renderPicker("Producto", productos, selected.productoId, (v) =>
+          setSelected({ ...selected, productoId: v })
+        )}
+
+        {/* Sección de fechas mejorada */}
+        <View style={styles.dateSection}>
+          {/* Fecha Inicio */}
+          <View style={styles.dateInputContainer}>
+            <Text style={styles.dateLabel}>Fecha Inicio:</Text>
+            <TouchableOpacity
+              style={styles.dateButton}
+              onPress={() => setShowDatePickerInicio(true)}
+            >
+              <Text style={styles.dateButtonText}>
+                {formatDate(fechaInicio)}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Fecha Fin */}
+          <View style={styles.dateInputContainer}>
+            <Text style={styles.dateLabel}>Fecha Fin:</Text>
+            <TouchableOpacity
+              style={styles.dateButton}
+              onPress={() => setShowDatePickerFin(true)}
+            >
+              <Text style={styles.dateButtonText}>{formatDate(fechaFin)}</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* DatePickers */}
+          {showDatePickerInicio && (
+            <DateTimePicker
+              value={fechaInicio}
+              mode="date"
+              display="default"
+              onChange={handleFechaInicioChange}
+              maximumDate={new Date()}
+            />
+          )}
+
+          {showDatePickerFin && (
+            <DateTimePicker
+              value={fechaFin}
+              mode="date"
+              display="default"
+              onChange={handleFechaFinChange}
+              minimumDate={fechaInicio}
+              maximumDate={new Date()}
+            />
+          )}
+
+          {/* Información del rango */}
+          <View style={styles.dateInfo}>
+            <Text style={styles.dateInfoText}>
+              Rango seleccionado:{" "}
+              {Math.ceil(
+                Math.abs(fechaFin - fechaInicio) / (1000 * 60 * 60 * 24)
+              ) + 1}{" "}
+              días
+            </Text>
+          </View>
         </View>
-      )}
-    </ScrollView>
+
+        <View style={styles.buttonContainer}>
+          <Button
+            title={generatingReport ? "Generando..." : "Generar Reporte"}
+            onPress={generarReporte}
+            disabled={generatingReport || !empresaSeleccionada?.empresaId}
+          />
+        </View>
+
+        {generatingReport && (
+          <View style={styles.loadingReport}>
+            <ActivityIndicator size="small" color="#388f4bff" />
+            <Text style={styles.loadingReportText}>Generando reporte...</Text>
+          </View>
+        )}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+  },
+  statusBarSpacer: {
+    height: Constants.statusBarHeight || 44, // 44px es la altura típica del notch/status bar en iOS
+    backgroundColor: "#f5f5f5",
+  },
   container: {
     padding: 16,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#ffffffff",
   },
   title: {
     fontSize: 24,
@@ -845,7 +861,7 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   predefinedButtonText: {
-    color: "#1976d2",
+    color: "#388f4bff",
     fontSize: 12,
     fontWeight: "500",
   },

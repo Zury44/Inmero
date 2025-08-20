@@ -17,6 +17,7 @@ import * as Sharing from "expo-sharing";
 import Constants from "expo-constants";
 import { Picker } from "@react-native-picker/picker";
 import { useSession } from "../../../context/SessionContext";
+import HeaderHome from "../../../components/HeaderHome";
 
 const { API_URL } = Constants.expoConfig.extra;
 
@@ -707,146 +708,160 @@ export default function ReporteOrdenCompra() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Reporte de Orden de Compra</Text>
+    <View style={styles.safeArea}>
+      <View style={styles.statusBarSpacer} />
+      <HeaderHome />
 
-      {/* FILTROS EN ORDEN CORRECTO */}
-      <View style={styles.sectionContainer}>
-        {/* 1. País */}
-        {renderPicker("País", paises, selected.paisId, handlePaisChange)}
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Reporte de Orden de Compra</Text>
 
-        {/* 2. Departamento */}
-        {renderPicker(
-          "Departamento",
-          departamentos,
-          selected.departamentoId,
-          handleDepartamentoChange,
-          selected.paisId !== null
-        )}
+        {/* FILTROS EN ORDEN CORRECTO */}
+        <View style={styles.sectionContainer}>
+          {/* 1. País */}
+          {renderPicker("País", paises, selected.paisId, handlePaisChange)}
 
-        {/* 3. Municipio */}
-        {renderPicker(
-          "Municipio",
-          municipios,
-          selected.municipioId,
-          handleMunicipioChange,
-          selected.departamentoId !== null
-        )}
+          {/* 2. Departamento */}
+          {renderPicker(
+            "Departamento",
+            departamentos,
+            selected.departamentoId,
+            handleDepartamentoChange,
+            selected.paisId !== null
+          )}
 
-        {/* 4. Sede */}
-        {renderPicker(
-          "Sede",
-          sedes,
-          selected.sedeId,
-          handleSedeChange,
-          selected.municipioId !== null
-        )}
+          {/* 3. Municipio */}
+          {renderPicker(
+            "Municipio",
+            municipios,
+            selected.municipioId,
+            handleMunicipioChange,
+            selected.departamentoId !== null
+          )}
 
-        {/* 5. Bloque */}
-        {renderPicker(
-          "Bloque",
-          bloques,
-          selected.bloqueId,
-          handleBloqueChange,
-          selected.sedeId !== null
-        )}
+          {/* 4. Sede */}
+          {renderPicker(
+            "Sede",
+            sedes,
+            selected.sedeId,
+            handleSedeChange,
+            selected.municipioId !== null
+          )}
 
-        {/* 6. Espacio */}
-        {renderPicker(
-          "Espacio",
-          espacios,
-          selected.espacioId,
-          handleEspacioChange,
-          selected.bloqueId !== null
-        )}
+          {/* 5. Bloque */}
+          {renderPicker(
+            "Bloque",
+            bloques,
+            selected.bloqueId,
+            handleBloqueChange,
+            selected.sedeId !== null
+          )}
 
-        {/* 7. Almacén */}
-        {renderPicker(
-          "Almacén",
-          almacenes,
-          selected.almacenId,
-          handleAlmacenChange,
-          selected.espacioId !== null
-        )}
+          {/* 6. Espacio */}
+          {renderPicker(
+            "Espacio",
+            espacios,
+            selected.espacioId,
+            handleEspacioChange,
+            selected.bloqueId !== null
+          )}
 
-        {/* 8. Producto */}
-        {renderPicker(
-          "Producto",
-          productos,
-          selected.productoId,
-          handleProductoChange,
-          selected.almacenId !== null
-        )}
+          {/* 7. Almacén */}
+          {renderPicker(
+            "Almacén",
+            almacenes,
+            selected.almacenId,
+            handleAlmacenChange,
+            selected.espacioId !== null
+          )}
 
-        {/* 9. Categoría Producto */}
-        {renderPicker(
-          "Categoría Producto",
-          categorias,
-          selected.categoriaId,
-          handleCategoriaChange,
-          selected.productoId !== null
-        )}
+          {/* 8. Producto */}
+          {renderPicker(
+            "Producto",
+            productos,
+            selected.productoId,
+            handleProductoChange,
+            selected.almacenId !== null
+          )}
 
-        {/* 10. Pedido */}
-        {renderPicker(
-          "Pedido",
-          pedidos,
-          selected.pedidoId,
-          handlePedidoChange,
-          selected.categoriaId !== null,
-          true
-        )}
+          {/* 9. Categoría Producto */}
+          {renderPicker(
+            "Categoría Producto",
+            categorias,
+            selected.categoriaId,
+            handleCategoriaChange,
+            selected.productoId !== null
+          )}
 
-        {/* 11. Categoría Estado - Campo obligatorio */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>
-            Categoría Estado <Text style={styles.required}>*</Text>
-          </Text>
-          <TextInput
+          {/* 10. Pedido */}
+          {renderPicker(
+            "Pedido",
+            pedidos,
+            selected.pedidoId,
+            handlePedidoChange,
+            selected.categoriaId !== null,
+            true
+          )}
+
+          {/* 11. Categoría Estado - Campo obligatorio */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>
+              Categoría Estado <Text style={styles.required}>*</Text>
+            </Text>
+            <TextInput
+              style={[
+                styles.textInput,
+                !selected.pedidoId && styles.textInputDisabled,
+              ]}
+              value={categoriaEstadoId}
+              onChangeText={setCategoriaEstadoId}
+              placeholder="Ingrese ID de categoría estado"
+              keyboardType="numeric"
+              editable={selected.pedidoId !== null}
+            />
+          </View>
+        </View>
+
+        {/* Botón de generar reporte */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
             style={[
-              styles.textInput,
-              !selected.pedidoId && styles.textInputDisabled,
+              styles.button,
+              styles.reportButton,
+              (!sonFiltrosValidos() || generatingReport) &&
+                styles.buttonDisabled,
             ]}
-            value={categoriaEstadoId}
-            onChangeText={setCategoriaEstadoId}
-            placeholder="Ingrese ID de categoría estado"
-            keyboardType="numeric"
-            editable={selected.pedidoId !== null}
-          />
+            onPress={generarReporte}
+            disabled={!sonFiltrosValidos() || generatingReport}
+          >
+            <Text style={styles.buttonText}>
+              {generatingReport ? "Generando..." : "Generar Reporte"}
+            </Text>
+          </TouchableOpacity>
         </View>
-      </View>
 
-      {/* Botón de generar reporte */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            styles.reportButton,
-            (!sonFiltrosValidos() || generatingReport) && styles.buttonDisabled,
-          ]}
-          onPress={generarReporte}
-          disabled={!sonFiltrosValidos() || generatingReport}
-        >
-          <Text style={styles.buttonText}>
-            {generatingReport ? "Generando..." : "Generar Reporte"}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Loading indicator */}
-      {generatingReport && (
-        <View style={styles.loadingReport}>
-          <ActivityIndicator size="small" color="#0066cc" />
-          <Text style={styles.loadingReportText}>Generando reporte...</Text>
-        </View>
-      )}
-    </ScrollView>
+        {/* Loading indicator */}
+        {generatingReport && (
+          <View style={styles.loadingReport}>
+            <ActivityIndicator size="small" color="#0066cc" />
+            <Text style={styles.loadingReportText}>Generando reporte...</Text>
+          </View>
+        )}
+      </ScrollView>
+    </View>
   );
 }
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+  },
+  statusBarSpacer: {
+    height: Constants.statusBarHeight || 44, // 44px es la altura típica del notch/status bar en iOS
+    backgroundColor: "#f5f5f5",
+  },
   container: {
     padding: 16,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#ffffffff",
   },
   title: {
     fontSize: 24,

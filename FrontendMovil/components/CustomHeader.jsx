@@ -1,53 +1,62 @@
-import { AntDesign } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { colors } from "../config/theme";
-import { typography } from "../config/typography";
-export default function CustomHeader({ title, backRoute = "/(tabs)/company" }) {
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+
+export default function CustomHeader({ title = "Título", onFilterPress }) {
   const router = useRouter();
-  return React.createElement(
-    View,
-    { style: styles.customHeader },
-    React.createElement(
-      TouchableOpacity,
-      {
-        onPress: () => {
-          if (typeof backRoute === "function") {
-            backRoute();
-          } else {
-            router.push(backRoute);
-          }
-        },
-        style: styles.backButton,
-      },
-      React.createElement(AntDesign, {
-        name: "left",
-        size: 22,
-        color: colors.gray,
-      })
-    ),
-    React.createElement(Text, { style: styles.headerTitle }, title),
-    React.createElement(View, { style: styles.placeholder })
+
+  const handleGoBack = () => {
+    router.back();
+  };
+
+  return (
+    <View style={styles.header}>
+      {/* Botón Atrás */}
+      <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
+        <Ionicons name="chevron-back" size={24} color="#333" />
+      </TouchableOpacity>
+
+      {/* Título */}
+      <Text style={styles.headerTitle}>{title}</Text>
+
+      {/* Botón de Filtro */}
+      <View style={styles.headerRight}>
+        <TouchableOpacity style={styles.filterButton} onPress={onFilterPress}>
+          <Ionicons name="filter-outline" size={20} color="#666" />
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
+
 const styles = StyleSheet.create({
-  customHeader: {
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    height: 60,
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    width: "100%",
-    paddingVertical: 10,
-    paddingHorizontal: 10,
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+    marginBottom: 20,
   },
   backButton: {
-    padding: 10,
+    padding: 5,
   },
-  headerTitle: Object.assign(
-    Object.assign({ flex: 1 }, typography.medium.big),
-    { color: colors.darkGray, textAlign: "center" }
-  ),
-  placeholder: {
-    width: 45,
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    flex: 1,
+    textAlign: "center",
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  filterButton: {
+    padding: 5,
   },
 });

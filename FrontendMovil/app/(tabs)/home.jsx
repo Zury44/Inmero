@@ -1,12 +1,10 @@
 import React, { useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useSession } from "../../context/SessionContext";
-import LogoInmero from "../../components/LogoInmero";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import HeaderHome from "../../components/HeaderHome"; // <- nuevo import
 
 const modules = [
   {
@@ -37,19 +35,11 @@ const modules = [
     route: "modules/Reportes/ReportesIndex",
     backgroundColor: "#FFEBEE",
   },
-  {
-    id: "5",
-    title: "Modulo\nCanvas",
-    icon: "vector-square",
-    route: "modules/Mapa/canvasScreen",
-    backgroundColor: "#E0F7FA",
-  },
 ];
 
 export default function Home() {
   const router = useRouter();
   const { empresaSeleccionada, empresasDisponibles, token } = useSession();
-  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     console.log("Token recibido en Home:", token);
@@ -60,23 +50,7 @@ export default function Home() {
       style={styles.container}
       edges={["top", "bottom", "left", "right"]}
     >
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.logoContainer}>
-          <LogoInmero width={140} height={150} />
-        </View>
-        <View style={styles.headerRight}>
-          <Ionicons
-            name="share-outline"
-            size={20}
-            color="#666"
-            style={styles.shareIcon}
-          />
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>AS</Text>
-          </View>
-        </View>
-      </View>
+      <HeaderHome />
 
       {/* Content */}
       <View style={styles.content}>
@@ -129,92 +103,18 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-
-  header: {
-    backgroundColor: "#fff",
-    paddingHorizontal: 16,
-    paddingVertical: 8, // Reducido de 2 a 8 para dar espacio mínimo
-    height: 60, // Altura fija más compacta
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ffffffff",
-  },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  brandName: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#333",
-    marginLeft: 8,
-  },
-  headerRight: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  shareIcon: {
-    marginRight: 12,
-  },
-  avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "#E0E0E0",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  avatarText: {
-    fontWeight: "600",
-    color: "#666",
-    fontSize: 12,
-  },
-
-  // Contenido
-  content: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 20,
-  },
-  welcomeSection: {
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#666",
-  },
-
-  // Empresa
+  container: { flex: 1, backgroundColor: "#fff" },
+  content: { flex: 1, paddingHorizontal: 16, paddingTop: 20 },
+  welcomeSection: { marginBottom: 10 },
+  title: { fontSize: 28, fontWeight: "bold", color: "#333", marginBottom: 4 },
   empresaContainer: {
     backgroundColor: "#E3F2FD",
     padding: 16,
     borderRadius: 16,
     marginBottom: 24,
   },
-  empresaText: {
-    fontSize: 14,
-    color: "#333",
-    marginBottom: 6,
-  },
-  cambiarLink: {
-    fontSize: 13,
-    color: "#1976D2",
-    fontWeight: "600",
-  },
-
-  // Módulos
+  empresaText: { fontSize: 14, color: "#333", marginBottom: 6 },
+  cambiarLink: { fontSize: 13, color: "#1976D2", fontWeight: "600" },
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -228,19 +128,12 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "center",
   },
-  moduleContent: {
-    alignItems: "flex-start",
-  },
-  iconContainer: {
-    marginBottom: 12,
-  },
+  moduleContent: { alignItems: "flex-start" },
+  iconContainer: { marginBottom: 12 },
   moduleTitle: {
     fontSize: 16,
     color: "#333",
     fontWeight: "600",
     lineHeight: 20,
-  },
-  logoContainer: {
-    alignItems: "center",
   },
 });

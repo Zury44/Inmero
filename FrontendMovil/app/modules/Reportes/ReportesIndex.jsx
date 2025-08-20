@@ -11,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useSession } from "../../../context/SessionContext";
+import CustomHeader from "../../../components/CustomHeader";
 
 const reportes = [
   {
@@ -67,18 +68,7 @@ export default function ReportesIndex() {
       style={styles.container}
       edges={["top", "bottom", "left", "right"]}
     >
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color="#333" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Reportes</Text>
-        <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.filterButton}>
-            <Ionicons name="filter-outline" size={20} color="#666" />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <CustomHeader title="Reportes" backRoute="/(tabs)/home" />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Grid de Reportes */}

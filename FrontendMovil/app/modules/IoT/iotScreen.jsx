@@ -11,11 +11,11 @@ import {
   View,
   ScrollView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useMQTT } from "../../../hooks/useMQTT";
 import CustomHeader from "../../../components/CustomHeader";
 import { useSession } from "../../../context/SessionContext";
 import { useRouter } from "expo-router";
+import Constants from "expo-constants";
 
 export default function iotScreen() {
   const router = useRouter();
@@ -134,7 +134,8 @@ export default function iotScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["bottom", "left", "right"]}>
+    <View style={styles.safeArea}>
+      <View style={styles.statusBarSpacer} />{" "}
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <CustomHeader title="Panel IoT" backRoute="(tabs)/home" />
 
@@ -291,15 +292,20 @@ export default function iotScreen() {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
     backgroundColor: "#f5f5f5",
     paddingHorizontal: 16,
   },
+  statusBarSpacer: {
+    height: Constants.statusBarHeight || 44, // 44px es el altura típica del notch/status bar en iOS
+    backgroundColor: "#f5f5f5",
+  },
+
   scrollContent: {
     paddingBottom: 16,
   },

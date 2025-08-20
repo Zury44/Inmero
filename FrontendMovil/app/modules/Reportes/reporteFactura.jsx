@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Platform,
+  SafeAreaView,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as FileSystem from "expo-file-system";
@@ -16,6 +17,7 @@ import * as Sharing from "expo-sharing";
 import Constants from "expo-constants";
 import { Picker } from "@react-native-picker/picker";
 import { useSession } from "../../../context/SessionContext";
+import HeaderHome from "../../../components/HeaderHome";
 
 const { API_URL } = Constants.expoConfig.extra;
 
@@ -452,7 +454,7 @@ export default function ReporteFactura() {
 
     // Verificaciones básicas
     if (!token) {
-      console.error("❌ No hay token disponible");
+      console.error("No hay token disponible");
       Alert.alert(
         "Error",
         "No hay sesión activa. Por favor, inicia sesión nuevamente."
@@ -461,7 +463,7 @@ export default function ReporteFactura() {
     }
 
     if (!empresaSeleccionada?.empresaId) {
-      console.error("❌ No hay empresa seleccionada");
+      console.error("No hay empresa seleccionada");
       Alert.alert(
         "Error",
         "No hay empresa seleccionada. Por favor, selecciona una empresa."
@@ -552,10 +554,10 @@ export default function ReporteFactura() {
         throw new Error(errorMessage);
       }
 
-      console.log("✅ Respuesta exitosa, procesando archivo...");
+      console.log("Respuesta exitosa, procesando archivo...");
 
       const arrayBuffer = await response.arrayBuffer();
-      console.log("📄 Archivo recibido:", arrayBuffer.byteLength, "bytes");
+      console.log("Archivo recibido:", arrayBuffer.byteLength, "bytes");
 
       if (arrayBuffer.byteLength === 0) {
         throw new Error("El archivo recibido está vacío");
@@ -648,14 +650,14 @@ export default function ReporteFactura() {
           style={styles.dateTimeButton}
           onPress={() => setShowDatePicker(true)}
         >
-          <Text style={styles.dateTimeButtonText}>📅 {formatDate(date)}</Text>
+          <Text style={styles.dateTimeButtonText}>{formatDate(date)}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.dateTimeButton}
           onPress={() => setShowTimePicker(true)}
         >
-          <Text style={styles.dateTimeButtonText}>🕐 {formatTime(date)}</Text>
+          <Text style={styles.dateTimeButtonText}>{formatTime(date)}</Text>
         </TouchableOpacity>
       </View>
 
@@ -687,139 +689,155 @@ export default function ReporteFactura() {
 
   if (loadingData) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0066cc" />
-        <Text style={styles.loadingText}>Cargando datos...</Text>
-      </View>
+      <SafeAreaView style={styles.loadingContainer}>
+        <View style={styles.statusBarSpacer} />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0066cc" />
+          <Text style={styles.loadingText}>Cargando datos...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Reporte de Factura</Text>
+    <View style={styles.safeArea}>
+      <View style={styles.statusBarSpacer} />
+      <HeaderHome />
 
-      {/* Filtros de ubicación */}
-      {renderPicker("País", paises, selected.paisId, handlePaisChange)}
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Reporte de Factura</Text>
 
-      {renderPicker(
-        "Departamento",
-        departamentos,
-        selected.departamentoId,
-        handleDepartamentoChange,
-        selected.paisId !== null
-      )}
+        {/* Filtros de ubicación */}
+        {renderPicker("País", paises, selected.paisId, handlePaisChange)}
 
-      {renderPicker(
-        "Municipio",
-        municipios,
-        selected.municipioId,
-        handleMunicipioChange,
-        selected.departamentoId !== null
-      )}
-
-      {renderPicker(
-        "Sede",
-        sedes,
-        selected.sedeId,
-        handleSedeChange,
-        selected.municipioId !== null
-      )}
-
-      {renderPicker(
-        "Bloque",
-        bloques,
-        selected.bloqueId,
-        handleBloqueChange,
-        selected.sedeId !== null
-      )}
-
-      {renderPicker(
-        "Espacio",
-        espacios,
-        selected.espacioId,
-        handleEspacioChange,
-        selected.bloqueId !== null
-      )}
-
-      {renderPicker(
-        "Almacén",
-        almacenes,
-        selected.almacenId,
-        (v) => setSelected({ ...selected, almacenId: v }),
-        selected.espacioId !== null
-      )}
-
-      {/* Filtros de producto */}
-      {renderPicker("Producto", productos, selected.productoId, (v) =>
-        setSelected({ ...selected, productoId: v })
-      )}
-
-      {renderPicker(
-        "Categoría Producto",
-        categorias,
-        selected.categoriaId,
-        (v) => setSelected({ ...selected, categoriaId: v })
-      )}
-
-      {/* Campos de fecha */}
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Rango de Fechas</Text>
-
-        {renderDateTimePicker(
-          "Fecha de Inicio",
-          fechaInicio,
-          onChangeFechaInicio,
-          onChangeTimeInicio,
-          showDatePickerInicio,
-          setShowDatePickerInicio,
-          showTimePickerInicio,
-          setShowTimePickerInicio
+        {renderPicker(
+          "Departamento",
+          departamentos,
+          selected.departamentoId,
+          handleDepartamentoChange,
+          selected.paisId !== null
         )}
 
-        {renderDateTimePicker(
-          "Fecha de Fin",
-          fechaFin,
-          onChangeFechaFin,
-          onChangeTimeFin,
-          showDatePickerFin,
-          setShowDatePickerFin,
-          showTimePickerFin,
-          setShowTimePickerFin
+        {renderPicker(
+          "Municipio",
+          municipios,
+          selected.municipioId,
+          handleMunicipioChange,
+          selected.departamentoId !== null
         )}
-      </View>
 
-      {/* Botón de generar reporte */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            styles.reportButton,
-            (!sonFiltrosValidos() || generatingReport) && styles.buttonDisabled,
-          ]}
-          onPress={generarReporte}
-          disabled={!sonFiltrosValidos() || generatingReport}
-        >
-          <Text style={styles.buttonText}>
-            {generatingReport ? "Generando..." : "Generar Reporte"}
-          </Text>
-        </TouchableOpacity>
-      </View>
+        {renderPicker(
+          "Sede",
+          sedes,
+          selected.sedeId,
+          handleSedeChange,
+          selected.municipioId !== null
+        )}
 
-      {/* Loading indicator */}
-      {generatingReport && (
-        <View style={styles.loadingReport}>
-          <ActivityIndicator size="small" color="#0066cc" />
-          <Text style={styles.loadingReportText}>Generando reporte...</Text>
+        {renderPicker(
+          "Bloque",
+          bloques,
+          selected.bloqueId,
+          handleBloqueChange,
+          selected.sedeId !== null
+        )}
+
+        {renderPicker(
+          "Espacio",
+          espacios,
+          selected.espacioId,
+          handleEspacioChange,
+          selected.bloqueId !== null
+        )}
+
+        {renderPicker(
+          "Almacén",
+          almacenes,
+          selected.almacenId,
+          (v) => setSelected({ ...selected, almacenId: v }),
+          selected.espacioId !== null
+        )}
+
+        {/* Filtros de producto */}
+        {renderPicker("Producto", productos, selected.productoId, (v) =>
+          setSelected({ ...selected, productoId: v })
+        )}
+
+        {renderPicker(
+          "Categoría Producto",
+          categorias,
+          selected.categoriaId,
+          (v) => setSelected({ ...selected, categoriaId: v })
+        )}
+
+        {/* Campos de fecha */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Rango de Fechas</Text>
+
+          {renderDateTimePicker(
+            "Fecha de Inicio",
+            fechaInicio,
+            onChangeFechaInicio,
+            onChangeTimeInicio,
+            showDatePickerInicio,
+            setShowDatePickerInicio,
+            showTimePickerInicio,
+            setShowTimePickerInicio
+          )}
+
+          {renderDateTimePicker(
+            "Fecha de Fin",
+            fechaFin,
+            onChangeFechaFin,
+            onChangeTimeFin,
+            showDatePickerFin,
+            setShowDatePickerFin,
+            showTimePickerFin,
+            setShowTimePickerFin
+          )}
         </View>
-      )}
-    </ScrollView>
+
+        {/* Botón de generar reporte */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[
+              styles.button,
+              styles.reportButton,
+              (!sonFiltrosValidos() || generatingReport) &&
+                styles.buttonDisabled,
+            ]}
+            onPress={generarReporte}
+            disabled={!sonFiltrosValidos() || generatingReport}
+          >
+            <Text style={styles.buttonText}>
+              {generatingReport ? "Generando..." : "Generar Reporte"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Loading indicator */}
+        {generatingReport && (
+          <View style={styles.loadingReport}>
+            <ActivityIndicator size="small" color="#0066cc" />
+            <Text style={styles.loadingReportText}>Generando reporte...</Text>
+          </View>
+        )}
+      </ScrollView>
+    </View>
   );
 }
-
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#ffffffff",
+  },
+  statusBarSpacer: {
+    height: Constants.statusBarHeight || 44, // 44px es el altura típica del notch/status bar en iOS
+    backgroundColor: "#f5f5f5",
+  },
   container: {
     padding: 16,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#ffffffff",
   },
   title: {
     fontSize: 24,

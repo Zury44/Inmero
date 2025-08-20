@@ -2,8 +2,8 @@ import "dotenv/config";
 
 export default {
   expo: {
-    name: "FrontendMovil",
-    slug: "FrontendMovil",
+    name: "Coagronet",
+    slug: "Coagronet",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/icon.png",

@@ -16,6 +16,7 @@ import * as Sharing from "expo-sharing";
 import Constants from "expo-constants";
 import { Picker } from "@react-native-picker/picker";
 import { useSession } from "../../../context/SessionContext";
+import HeaderHome from "../../../components/HeaderHome";
 
 const { API_URL } = Constants.expoConfig.extra;
 
@@ -326,93 +327,109 @@ export default function ReporteProductosVencidos() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Reporte de Productos Vencidos</Text>
+    <View style={styles.safeArea}>
+      <View style={styles.statusBarSpacer} />
+      <HeaderHome />
 
-      {/* Filtro de producto */}
-      {renderPicker("Producto", productos, productoId, setProductoId)}
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Reporte de Productos Vencidos</Text>
 
-      {/* Filtro de categoría de producto */}
-      {renderPicker(
-        "Categoría Producto",
-        categorias,
-        categoriaId,
-        setCategoriaId
-      )}
+        {/* Filtro de producto */}
+        {renderPicker("Producto", productos, productoId, setProductoId)}
 
-      {/* Campo de fecha inicio */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Fecha Inicio *</Text>
-        <TouchableOpacity
-          style={styles.dateButton}
-          onPress={() => setShowDatePickerInicio(true)}
-        >
-          <Text style={styles.dateButtonText}>
-            {formatearFecha(fechaInicio)}
-          </Text>
-        </TouchableOpacity>
-        {showDatePickerInicio && (
-          <DateTimePicker
-            value={fechaInicio}
-            mode="date"
-            display="default"
-            onChange={onChangeFechaInicio}
-          />
+        {/* Filtro de categoría de producto */}
+        {renderPicker(
+          "Categoría Producto",
+          categorias,
+          categoriaId,
+          setCategoriaId
         )}
-      </View>
 
-      {/* Campo de fecha fin */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Fecha Fin *</Text>
-        <TouchableOpacity
-          style={styles.dateButton}
-          onPress={() => setShowDatePickerFin(true)}
-        >
-          <Text style={styles.dateButtonText}>{formatearFecha(fechaFin)}</Text>
-        </TouchableOpacity>
-        {showDatePickerFin && (
-          <DateTimePicker
-            value={fechaFin}
-            mode="date"
-            display="default"
-            onChange={onChangeFechaFin}
-          />
-        )}
-      </View>
-
-      {/* Botón para generar reporte */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            styles.reportButton,
-            generatingReport && styles.buttonDisabled,
-          ]}
-          onPress={generarReporte}
-          disabled={generatingReport}
-        >
-          <Text style={styles.buttonText}>
-            {generatingReport ? "Generando..." : "Generar Reporte"}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Loading indicator */}
-      {generatingReport && (
-        <View style={styles.loadingReport}>
-          <ActivityIndicator size="small" color="#0066cc" />
-          <Text style={styles.loadingReportText}>Generando reporte...</Text>
+        {/* Campo de fecha inicio */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Fecha Inicio *</Text>
+          <TouchableOpacity
+            style={styles.dateButton}
+            onPress={() => setShowDatePickerInicio(true)}
+          >
+            <Text style={styles.dateButtonText}>
+              {formatearFecha(fechaInicio)}
+            </Text>
+          </TouchableOpacity>
+          {showDatePickerInicio && (
+            <DateTimePicker
+              value={fechaInicio}
+              mode="date"
+              display="default"
+              onChange={onChangeFechaInicio}
+            />
+          )}
         </View>
-      )}
-    </ScrollView>
+
+        {/* Campo de fecha fin */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Fecha Fin *</Text>
+          <TouchableOpacity
+            style={styles.dateButton}
+            onPress={() => setShowDatePickerFin(true)}
+          >
+            <Text style={styles.dateButtonText}>
+              {formatearFecha(fechaFin)}
+            </Text>
+          </TouchableOpacity>
+          {showDatePickerFin && (
+            <DateTimePicker
+              value={fechaFin}
+              mode="date"
+              display="default"
+              onChange={onChangeFechaFin}
+            />
+          )}
+        </View>
+
+        {/* Botón para generar reporte */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[
+              styles.button,
+              styles.reportButton,
+              generatingReport && styles.buttonDisabled,
+            ]}
+            onPress={generarReporte}
+            disabled={generatingReport}
+          >
+            <Text style={styles.buttonText}>
+              {generatingReport ? "Generando..." : "Generar Reporte"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Loading indicator */}
+        {generatingReport && (
+          <View style={styles.loadingReport}>
+            <ActivityIndicator size="small" color="#0066cc" />
+            <Text style={styles.loadingReportText}>Generando reporte...</Text>
+          </View>
+        )}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
+  safeArea: {
+    flex: 1,
     backgroundColor: "#f5f5f5",
   },
+  statusBarSpacer: {
+    height: Constants.statusBarHeight || 44, // 44px es la altura típica del notch/status bar en iOS
+    backgroundColor: "#f5f5f5",
+  },
+  container: {
+    padding: 16,
+    backgroundColor: "#ffffffff",
+  },
+
   title: {
     fontSize: 24,
     fontWeight: "bold",
