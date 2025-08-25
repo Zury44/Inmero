@@ -81,7 +81,7 @@ export default function PedidoReporte() {
     console.log("================================");
   }, [token, empresaSeleccionada]);
 
-  // Función mejorada para fetch de datos con mejor manejo de errores
+  // Función mejorada para fetch de datos con manejo de respuestas paginadas
   const fetchData = useCallback(
     async (endpoint, stateKey, filterFn = null) => {
       try {
@@ -101,13 +101,34 @@ export default function PedidoReporte() {
 
         const data = await res.json();
 
-        if (!Array.isArray(data)) {
-          console.warn(`Datos no válidos recibidos para ${stateKey}:`, data);
+        // 🔧 CORRECCIÓN: Manejar tanto arrays directos como respuestas paginadas
+        let processedData;
+
+        if (Array.isArray(data)) {
+          // Respuesta directa como array
+          processedData = data;
+        } else if (data && Array.isArray(data.content)) {
+          // Respuesta paginada con estructura { content: [...], page: {...} }
+          processedData = data.content;
+          console.log(`✅ Datos paginados recibidos para ${stateKey}:`, {
+            total: data.page?.totalElements || data.content.length,
+            pagina: data.page?.number || 0,
+            elementos: data.content.length,
+          });
+        } else {
+          // Formato no reconocido
+          console.warn(`❌ Formato de datos no válido para ${stateKey}:`, data);
+          console.warn(`   Esperado: Array o { content: Array, page: Object }`);
+          console.warn(`   Recibido:`, typeof data, data);
           return;
         }
 
-        const processedData = filterFn ? data.filter(filterFn) : data;
+        // Aplicar filtro si se proporciona
+        const finalData = filterFn
+          ? processedData.filter(filterFn)
+          : processedData;
 
+        // Actualizar el estado correspondiente
         const setters = {
           paises: setPaises,
           departamentos: setDepartamentos,
@@ -123,16 +144,25 @@ export default function PedidoReporte() {
 
         const setter = setters[stateKey];
         if (setter) {
-          setter(processedData);
+          setter(finalData);
+          console.log(
+            `✅ ${stateKey} cargados:`,
+            finalData.length,
+            "elementos"
+          );
+        } else {
+          console.warn(`❌ No se encontró setter para ${stateKey}`);
         }
       } catch (error) {
-        console.error(`Error cargando ${stateKey}:`, error);
-        Alert.alert("Error", `No se pudieron cargar los datos de ${stateKey}`);
+        console.error(`❌ Error cargando ${stateKey}:`, error);
+        Alert.alert(
+          "Error",
+          `No se pudieron cargar los datos de ${stateKey}: ${error.message}`
+        );
       }
     },
     [token, API_URL]
   );
-
   // 🔧 CORRECCIÓN: Carga inicial de datos simplificada (igual al KardexReporte)
   useEffect(() => {
     const loadInitialData = async () => {

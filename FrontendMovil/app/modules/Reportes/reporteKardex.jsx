@@ -107,13 +107,29 @@ export default function KardexReporte() {
 
         const data = await res.json();
 
-        if (!Array.isArray(data)) {
-          console.warn(`Datos no válidos recibidos para ${stateKey}:`, data);
+        let processedData;
+        if (Array.isArray(data)) {
+          // Respuesta directa como array
+          processedData = data;
+        } else if (data && Array.isArray(data.content)) {
+          // Respuesta paginada con estructura { content: [...], page: {...} }
+          processedData = data.content;
+          console.log(`✅ Datos paginados recibidos para ${stateKey}:`, {
+            total: data.page?.totalElements || data.content.length,
+            pagina: data.page?.number || 0,
+            elementos: data.content.length,
+          });
+        } else {
+          // Formato no reconocido
+          console.warn(`❌ Formato de datos no válido para ${stateKey}:`, data);
+          console.warn(`   Esperado: Array o { content: Array, page: Object }`);
+          console.warn(`   Recibido:`, typeof data, data);
           return;
         }
-
         // Aplicar filtro client-side si se proporciona
-        const processedData = filterFn ? data.filter(filterFn) : data;
+        const finalData = filterFn
+          ? processedData.filter(filterFn)
+          : processedData;
 
         const setters = {
           paises: setPaises,
@@ -129,11 +145,21 @@ export default function KardexReporte() {
 
         const setter = setters[stateKey];
         if (setter) {
-          setter(processedData);
+          setter(finalData);
+          console.log(
+            `✅ ${stateKey} cargados:`,
+            finalData.length,
+            "elementos"
+          );
+        } else {
+          console.warn(`❌ No se encontró setter para ${stateKey}`);
         }
       } catch (error) {
-        console.error(`Error cargando ${stateKey}:`, error);
-        Alert.alert("Error", `No se pudieron cargar los datos de ${stateKey}`);
+        console.error(`❌ Error cargando ${stateKey}:`, error);
+        Alert.alert(
+          "Error",
+          `No se pudieron cargar los datos de ${stateKey}: ${error.message}`
+        );
       }
     },
     [token, API_URL]

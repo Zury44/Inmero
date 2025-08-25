@@ -111,13 +111,39 @@ export default function ReporteOrdenCompra() {
 
         const data = await res.json();
 
-        if (!Array.isArray(data)) {
-          console.warn(`Datos no válidos recibidos para ${stateKey}:`, data);
+        // CORRECCIÓN: Manejar tanto arrays directos como respuestas paginadas
+        let processedData;
+
+        if (Array.isArray(data)) {
+          // Respuesta directa como array
+          processedData = data;
+          console.log(
+            `✅ ${stateKey} - Array directo:`,
+            data.length,
+            "elementos"
+          );
+        } else if (data && Array.isArray(data.content)) {
+          // Respuesta paginada con estructura { content: [...], page: {...} }
+          processedData = data.content;
+          console.log(`✅ ${stateKey} - Respuesta paginada:`, {
+            total: data.page?.totalElements || data.content.length,
+            pagina: data.page?.number || 0,
+            elementos: data.content.length,
+          });
+        } else {
+          // Formato no reconocido
+          console.warn(`❌ Formato de datos no válido para ${stateKey}:`, data);
+          console.warn(`   Esperado: Array o { content: Array, page: Object }`);
+          console.warn(`   Recibido:`, typeof data, Object.keys(data || {}));
           return;
         }
 
-        const processedData = filterFn ? data.filter(filterFn) : data;
+        // Aplicar filtro si se proporciona
+        const finalData = filterFn
+          ? processedData.filter(filterFn)
+          : processedData;
 
+        // Actualizar el estado correspondiente
         const setters = {
           paises: setPaises,
           departamentos: setDepartamentos,
@@ -128,21 +154,30 @@ export default function ReporteOrdenCompra() {
           almacenes: setAlmacenes,
           productos: setProductos,
           categorias: setCategorias,
-          pedidos: setPedidos,
+          pedidos: setPedidos, // Solo incluir si exists en el componente
         };
 
         const setter = setters[stateKey];
         if (setter) {
-          setter(processedData);
+          setter(finalData);
+          console.log(
+            `✅ Estado ${stateKey} actualizado:`,
+            finalData.length,
+            "elementos"
+          );
+        } else {
+          console.warn(`❌ No se encontró setter para ${stateKey}`);
         }
       } catch (error) {
-        console.error(`Error cargando ${stateKey}:`, error);
-        Alert.alert("Error", `No se pudieron cargar los datos de ${stateKey}`);
+        console.error(`❌ Error cargando ${stateKey}:`, error);
+        Alert.alert(
+          "Error",
+          `No se pudieron cargar los datos de ${stateKey}: ${error.message}`
+        );
       }
     },
     [token, API_URL]
   );
-
   // Carga inicial SOLO de países - El resto se carga secuencialmente
   useEffect(() => {
     const loadInitialData = async () => {

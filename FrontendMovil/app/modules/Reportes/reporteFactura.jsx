@@ -76,7 +76,7 @@ export default function ReporteFactura() {
   const [showTimePickerInicio, setShowTimePickerInicio] = useState(false);
   const [showTimePickerFin, setShowTimePickerFin] = useState(false);
 
-  // Estados para loading
+  n; // Estados para loading
   const [loadingData, setLoadingData] = useState(false);
   const [generatingReport, setGeneratingReport] = useState(false);
 
@@ -109,13 +109,30 @@ export default function ReporteFactura() {
         }
 
         const data = await res.json();
+        let processedData;
 
-        if (!Array.isArray(data)) {
-          console.warn(`Datos no válidos recibidos para ${stateKey}:`, data);
+        if (Array.isArray(data)) {
+          // Respuesta directa como array
+          processedData = data;
+        } else if (data && Array.isArray(data.content)) {
+          // Respuesta paginada con estructura { content: [...], page: {...} }
+          processedData = data.content;
+          console.log(`✅ Datos paginados recibidos para ${stateKey}:`, {
+            total: data.page?.totalElements || data.content.length,
+            pagina: data.page?.number || 0,
+            elementos: data.content.length,
+          });
+        } else {
+          // Formato no reconocido
+          console.warn(`❌ Formato de datos no válido para ${stateKey}:`, data);
+          console.warn(`   Esperado: Array o { content: Array, page: Object }`);
+          console.warn(`   Recibido:`, typeof data, data);
           return;
         }
 
-        const processedData = filterFn ? data.filter(filterFn) : data;
+        const finalData = filterFn
+          ? processedData.filter(filterFn)
+          : processedData;
 
         const setters = {
           paises: setPaises,
@@ -131,11 +148,21 @@ export default function ReporteFactura() {
 
         const setter = setters[stateKey];
         if (setter) {
-          setter(processedData);
+          setter(finalData);
+          console.log(
+            `✅ ${stateKey} cargados:`,
+            finalData.length,
+            "elementos"
+          );
+        } else {
+          console.warn(`❌ No se encontró setter para ${stateKey}`);
         }
       } catch (error) {
-        console.error(`Error cargando ${stateKey}:`, error);
-        Alert.alert("Error", `No se pudieron cargar los datos de ${stateKey}`);
+        console.error(`❌ Error cargando ${stateKey}:`, error);
+        Alert.alert(
+          "Error",
+          `No se pudieron cargar los datos de ${stateKey}: ${error.message}`
+        );
       }
     },
     [token, API_URL]
