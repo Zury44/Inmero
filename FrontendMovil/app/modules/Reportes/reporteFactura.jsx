@@ -76,7 +76,7 @@ export default function ReporteFactura() {
   const [showTimePickerInicio, setShowTimePickerInicio] = useState(false);
   const [showTimePickerFin, setShowTimePickerFin] = useState(false);
 
-  n; // Estados para loading
+  // Estados para loading
   const [loadingData, setLoadingData] = useState(false);
   const [generatingReport, setGeneratingReport] = useState(false);
 
@@ -598,7 +598,7 @@ export default function ReporteFactura() {
         encoding: FileSystem.EncodingType.Base64,
       });
 
-      console.log("💾 Archivo guardado en:", uri);
+      console.log("Archivo guardado en:", uri);
 
       if (await Sharing.isAvailableAsync()) {
         console.log("Compartiendo archivo...");
