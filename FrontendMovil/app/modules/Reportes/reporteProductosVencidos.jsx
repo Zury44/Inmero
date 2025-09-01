@@ -141,13 +141,12 @@ export default function ReporteProductosVencidos() {
     }
   };
 
-  // Función para generar reporte (CORREGIDA)
   const generarReporte = async () => {
     console.log("=== INICIANDO GENERACIÓN DE REPORTE PRODUCTOS VENCIDOS ===");
 
     // Verificaciones básicas
     if (!token) {
-      console.error("❌ No hay token disponible");
+      console.error(" No hay token disponible");
       Alert.alert(
         "Error",
         "No hay sesión activa. Por favor, inicia sesión nuevamente."
@@ -156,7 +155,7 @@ export default function ReporteProductosVencidos() {
     }
 
     if (!empresaSeleccionada?.empresaId) {
-      console.error("❌ No hay empresa seleccionada");
+      console.error(" No hay empresa seleccionada");
       Alert.alert(
         "Error",
         "No hay empresa seleccionada. Por favor, selecciona una empresa."
@@ -180,14 +179,13 @@ export default function ReporteProductosVencidos() {
 
     setGeneratingReport(true);
 
-    // Crear el objeto para el backend (CORREGIDO)
     const fechaInicioFormateada = formatearFecha(fechaInicio);
     const fechaFinFormateada = formatearFecha(fechaFin);
 
     const filtrosParaBackend = {
-      empresa_id: empresaSeleccionada.empresaId, // ✅ Agregado: empresa_id requerido
-      fecha_inicio: `${fechaInicioFormateada} 18:00`, // ✅ Corregido: formato con hora
-      fecha_fin: `${fechaFinFormateada} 18:00`, // ✅ Corregido: formato con hora
+      empresa_id: empresaSeleccionada.empresaId,
+      fecha_inicio: `${fechaInicioFormateada} 18:00`,
+      fecha_fin: `${fechaFinFormateada} 18:00`,
     };
 
     // Agregar filtros opcionales solo si están seleccionados
@@ -196,13 +194,12 @@ export default function ReporteProductosVencidos() {
     }
 
     if (categoriaId) {
-      // ✅ Corregido: campo correcto producto_categoria_id
       filtrosParaBackend.producto_categoria_id = parseInt(categoriaId);
     }
 
     const urlCompleta = `${API_URL}${endpoints.reporte}`;
 
-    console.log("📤 Enviando petición:");
+    console.log("Enviando petición:");
     console.log("   URL:", urlCompleta);
     console.log("   Filtros para backend:", filtrosParaBackend);
 
@@ -220,7 +217,7 @@ export default function ReporteProductosVencidos() {
         body: JSON.stringify(filtrosParaBackend),
       });
 
-      console.log("📥 Respuesta recibida:");
+      console.log("Respuesta recibida:");
       console.log("   Status:", response.status);
       console.log("   Status Text:", response.statusText);
 
@@ -249,10 +246,10 @@ export default function ReporteProductosVencidos() {
         throw new Error(errorMessage);
       }
 
-      console.log("✅ Respuesta exitosa, procesando archivo...");
+      console.log("Respuesta exitosa, procesando archivo...");
 
       const arrayBuffer = await response.arrayBuffer();
-      console.log("📄 Archivo recibido:", arrayBuffer.byteLength, "bytes");
+      console.log("Archivo recibido:", arrayBuffer.byteLength, "bytes");
 
       if (arrayBuffer.byteLength === 0) {
         throw new Error("El archivo recibido está vacío");
@@ -272,10 +269,10 @@ export default function ReporteProductosVencidos() {
         encoding: FileSystem.EncodingType.Base64,
       });
 
-      console.log("💾 Archivo guardado en:", uri);
+      console.log("Archivo guardado en:", uri);
 
       if (await Sharing.isAvailableAsync()) {
-        console.log("📤 Compartiendo archivo...");
+        console.log("Compartiendo archivo...");
         await Sharing.shareAsync(uri, {
           mimeType: "application/pdf",
           dialogTitle: "Compartir Reporte de Productos Vencidos",
@@ -284,9 +281,9 @@ export default function ReporteProductosVencidos() {
         Alert.alert("Éxito", "Reporte generado correctamente");
       }
 
-      console.log("✅ Proceso completado exitosamente");
+      console.log("Proceso completado exitosamente");
     } catch (error) {
-      console.error("❌ Error completo:", error);
+      console.error("Error completo:", error);
       Alert.alert("Error", `No se pudo generar el reporte: ${error.message}`);
     } finally {
       setGeneratingReport(false);
@@ -422,7 +419,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
   },
   statusBarSpacer: {
-    height: Constants.statusBarHeight || 44, // 44px es la altura típica del notch/status bar en iOS
+    height: Constants.statusBarHeight || 44,
     backgroundColor: "#f5f5f5",
   },
   container: {

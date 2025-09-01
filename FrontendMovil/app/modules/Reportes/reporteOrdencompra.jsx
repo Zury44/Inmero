@@ -118,21 +118,21 @@ export default function ReporteOrdenCompra() {
           // Respuesta directa como array
           processedData = data;
           console.log(
-            `✅ ${stateKey} - Array directo:`,
+            ` ${stateKey} - Array directo:`,
             data.length,
             "elementos"
           );
         } else if (data && Array.isArray(data.content)) {
           // Respuesta paginada con estructura { content: [...], page: {...} }
           processedData = data.content;
-          console.log(`✅ ${stateKey} - Respuesta paginada:`, {
+          console.log(` ${stateKey} - Respuesta paginada:`, {
             total: data.page?.totalElements || data.content.length,
             pagina: data.page?.number || 0,
             elementos: data.content.length,
           });
         } else {
           // Formato no reconocido
-          console.warn(`❌ Formato de datos no válido para ${stateKey}:`, data);
+          console.warn(` Formato de datos no válido para ${stateKey}:`, data);
           console.warn(`   Esperado: Array o { content: Array, page: Object }`);
           console.warn(`   Recibido:`, typeof data, Object.keys(data || {}));
           return;
@@ -161,15 +161,15 @@ export default function ReporteOrdenCompra() {
         if (setter) {
           setter(finalData);
           console.log(
-            `✅ Estado ${stateKey} actualizado:`,
+            ` Estado ${stateKey} actualizado:`,
             finalData.length,
             "elementos"
           );
         } else {
-          console.warn(`❌ No se encontró setter para ${stateKey}`);
+          console.warn(` No se encontró setter para ${stateKey}`);
         }
       } catch (error) {
-        console.error(`❌ Error cargando ${stateKey}:`, error);
+        console.error(`Error cargando ${stateKey}:`, error);
         Alert.alert(
           "Error",
           `No se pudieron cargar los datos de ${stateKey}: ${error.message}`
@@ -318,7 +318,7 @@ export default function ReporteOrdenCompra() {
 
   const handlePaisChange = useCallback(
     async (paisId) => {
-      console.log("🌍 País seleccionado:", paisId);
+      console.log(" País seleccionado:", paisId);
 
       setSelected((prev) => ({ ...prev, paisId }));
       limpiarDependientes("paisId");
@@ -352,7 +352,7 @@ export default function ReporteOrdenCompra() {
 
   const handleMunicipioChange = useCallback(
     async (municipioId) => {
-      console.log("🏙️ Municipio seleccionado:", municipioId);
+      console.log(" Municipio seleccionado:", municipioId);
 
       setSelected((prev) => ({ ...prev, municipioId }));
       limpiarDependientes("municipioId");
@@ -370,7 +370,7 @@ export default function ReporteOrdenCompra() {
 
   const handleSedeChange = useCallback(
     async (sedeId) => {
-      console.log("🏢 Sede seleccionada:", sedeId);
+      console.log("Sede seleccionada:", sedeId);
 
       setSelected((prev) => ({ ...prev, sedeId }));
       limpiarDependientes("sedeId");
@@ -388,7 +388,7 @@ export default function ReporteOrdenCompra() {
 
   const handleBloqueChange = useCallback(
     async (bloqueId) => {
-      console.log("🧱 Bloque seleccionado:", bloqueId);
+      console.log(" Bloque seleccionado:", bloqueId);
 
       setSelected((prev) => ({ ...prev, bloqueId }));
       limpiarDependientes("bloqueId");
@@ -406,7 +406,7 @@ export default function ReporteOrdenCompra() {
 
   const handleEspacioChange = useCallback(
     async (espacioId) => {
-      console.log("🏪 Espacio seleccionado:", espacioId);
+      console.log(" Espacio seleccionado:", espacioId);
 
       setSelected((prev) => ({ ...prev, espacioId }));
       limpiarDependientes("espacioId");
@@ -424,7 +424,7 @@ export default function ReporteOrdenCompra() {
 
   const handleAlmacenChange = useCallback(
     async (almacenId) => {
-      console.log("📦 Almacén seleccionado:", almacenId);
+      console.log(" Almacén seleccionado:", almacenId);
 
       setSelected((prev) => ({ ...prev, almacenId }));
       limpiarDependientes("almacenId");
@@ -439,7 +439,7 @@ export default function ReporteOrdenCompra() {
 
   const handleProductoChange = useCallback(
     async (productoId) => {
-      console.log("📋 Producto seleccionado:", productoId);
+      console.log("Producto seleccionado:", productoId);
 
       setSelected((prev) => ({ ...prev, productoId }));
       limpiarDependientes("productoId");
@@ -454,7 +454,7 @@ export default function ReporteOrdenCompra() {
 
   const handleCategoriaChange = useCallback(
     async (categoriaId) => {
-      console.log("🏷️ Categoría seleccionada:", categoriaId);
+      console.log("Categoría seleccionada:", categoriaId);
 
       setSelected((prev) => ({ ...prev, categoriaId }));
       limpiarDependientes("categoriaId");
@@ -468,7 +468,7 @@ export default function ReporteOrdenCompra() {
   );
 
   const handlePedidoChange = useCallback((pedidoId) => {
-    console.log("📝 Pedido seleccionado:", pedidoId);
+    console.log(" Pedido seleccionado:", pedidoId);
 
     setSelected((prev) => ({ ...prev, pedidoId }));
     // No limpiar dependientes aquí porque el pedido es el penúltimo filtro
@@ -525,7 +525,7 @@ export default function ReporteOrdenCompra() {
     console.log("=== INICIANDO GENERACIÓN DE REPORTE ORDEN COMPRA ===");
 
     if (!token) {
-      console.error("❌ No hay token disponible");
+      console.error(" No hay token disponible");
       Alert.alert(
         "Error",
         "No hay sesión activa. Por favor, inicia sesión nuevamente."
@@ -534,7 +534,7 @@ export default function ReporteOrdenCompra() {
     }
 
     if (!empresaSeleccionada?.empresaId) {
-      console.error("❌ No hay empresa seleccionada");
+      console.error(" No hay empresa seleccionada");
       Alert.alert(
         "Error",
         "No hay empresa seleccionada. Por favor, selecciona una empresa."
@@ -568,7 +568,7 @@ export default function ReporteOrdenCompra() {
       fecha_fin: fechaFin.toISOString().slice(0, 19).replace("T", " "),
     };
 
-    console.log("📤 Filtros enviados al backend:", filtrosParaBackend);
+    console.log("Filtros enviados al backend:", filtrosParaBackend);
     const urlCompleta = `${API_URL}${endpoints.reporteOrdenCompra}`;
 
     try {
@@ -585,11 +585,7 @@ export default function ReporteOrdenCompra() {
         body: JSON.stringify(filtrosParaBackend),
       });
 
-      console.log(
-        "📥 Respuesta recibida:",
-        response.status,
-        response.statusText
-      );
+      console.log("Respuesta recibida:", response.status, response.statusText);
 
       if (!response.ok) {
         let errorMessage = `Error ${response.status}: ${response.statusText}`;
@@ -609,7 +605,7 @@ export default function ReporteOrdenCompra() {
       }
 
       const arrayBuffer = await response.arrayBuffer();
-      console.log("📄 Archivo recibido:", arrayBuffer.byteLength, "bytes");
+      console.log("Archivo recibido:", arrayBuffer.byteLength, "bytes");
 
       if (arrayBuffer.byteLength === 0) {
         throw new Error("El archivo recibido está vacío");
@@ -638,9 +634,9 @@ export default function ReporteOrdenCompra() {
         Alert.alert("Éxito", "Reporte generado correctamente");
       }
 
-      console.log("✅ Proceso completado exitosamente");
+      console.log(" Proceso completado exitosamente");
     } catch (error) {
-      console.error("❌ Error completo:", error);
+      console.error("Error completo:", error);
       Alert.alert("Error", `No se pudo generar el reporte: ${error.message}`);
     } finally {
       setGeneratingReport(false);
@@ -700,13 +696,13 @@ export default function ReporteOrdenCompra() {
           style={styles.dateTimeButton}
           onPress={() => setShowDatePicker(true)}
         >
-          <Text style={styles.dateTimeButtonText}>📅 {formatDate(date)}</Text>
+          <Text style={styles.dateTimeButtonText}>{formatDate(date)}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.dateTimeButton}
           onPress={() => setShowTimePicker(true)}
         >
-          <Text style={styles.dateTimeButtonText}>🕐 {formatTime(date)}</Text>
+          <Text style={styles.dateTimeButtonText}>{formatTime(date)}</Text>
         </TouchableOpacity>
       </View>
       <Text style={styles.dateTimeDisplay}>{formatDateTime(date)}</Text>
@@ -750,7 +746,7 @@ export default function ReporteOrdenCompra() {
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Reporte de Orden de Compra</Text>
 
-        {/* FILTROS EN ORDEN CORRECTO */}
+        {/* FILTROS*/}
         <View style={styles.sectionContainer}>
           {/* 1. País */}
           {renderPicker("País", paises, selected.paisId, handlePaisChange)}
@@ -891,7 +887,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
   },
   statusBarSpacer: {
-    height: Constants.statusBarHeight || 44, // 44px es la altura típica del notch/status bar en iOS
+    height: Constants.statusBarHeight || 44,
     backgroundColor: "#f5f5f5",
   },
   container: {
@@ -1045,7 +1041,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
   },
-  // ESTILOS FALTANTES PARA FECHA Y HORA:
   dateTimeContainer: {
     marginVertical: 8,
     backgroundColor: "white",

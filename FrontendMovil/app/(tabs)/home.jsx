@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useSession } from "../../context/SessionContext";
-import HeaderHome from "../../components/HeaderHome"; // <- nuevo import
+import HeaderHome from "../../components/HeaderHome";
 
 const modules = [
   {

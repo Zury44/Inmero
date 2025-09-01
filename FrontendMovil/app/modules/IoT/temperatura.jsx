@@ -92,7 +92,7 @@ export default function Temperatura() {
         </TouchableOpacity>
       </View>
 
-      {/* Period Selector */}
+      {/* Selector de intervalo de tiempo */}
       <View style={styles.periodContainer}>
         {periods.map((period) => (
           <TouchableOpacity
@@ -115,7 +115,7 @@ export default function Temperatura() {
         ))}
       </View>
 
-      {/* Chart */}
+      {/* Grafica */}
       <View style={styles.chartContainer}>
         {isValidData ? (
           <LineChart
@@ -171,7 +171,7 @@ export default function Temperatura() {
         )}
       </View>
 
-      {/* Temperature and Humidity Cards */}
+      {/* Cards de temperatura y humedad */}
       <View style={styles.dataContainer}>
         <View style={styles.dataCard}>
           <View style={styles.iconContainer}>

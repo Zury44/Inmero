@@ -18,8 +18,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import LogoInmero from "../../components/LogoInmero";
 import { useSession } from "../../context/SessionContext";
 
-const { API_URL, API_URL_LOGIN, API_URL_SELECTION, eas } =
-  Constants.expoConfig.extra;
+const { API_URL, API_URL_LOGIN, eas } = Constants.expoConfig.extra;
 const projectId = eas?.projectId;
 
 export default function LoginScreen() {
@@ -30,98 +29,187 @@ export default function LoginScreen() {
   const [contrasena, setContrasena] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const {
-    setEmpresasDisponibles,
-    setEmpresaSeleccionada,
-    setUsername,
-    setToken,
-  } = useSession();
+  const { setUsername, guardarSesionCompleta } = useSession();
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleLogin = async () => {
+    if (isLoading) return;
+
     setError("");
+    setIsLoading(true);
+
+    if (!correo.trim()) {
+      setError("Por favor ingresa tu correo electrónico");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!contrasena.trim()) {
+      setError("Por favor ingresa tu contraseña");
+      setIsLoading(false);
+      return;
+    }
 
     if (!validateEmail(correo)) {
       setError("Correo electrónico inválido");
+      setIsLoading(false);
       return;
     }
 
     try {
+      //console.log("Iniciando login...");
+      //console.log("API_URL:", API_URL);
+      //console.log("API_URL_LOGIN:", API_URL_LOGIN);
+      //console.log("URL completa:", `${API_URL}${API_URL_LOGIN}`);
+
+      // NUEVO FLUJO: Login devuelve token inmediatamente
       const response = await axios.post(`${API_URL}${API_URL_LOGIN}`, {
-        username: correo,
+        username: correo.trim(),
         password: contrasena,
       });
 
-      const { rolesByCompany, usuarioEstado } = response.data;
+      // console.log("Respuesta del login:", response.data);
 
-      if (!rolesByCompany || rolesByCompany.length === 0) {
-        setError("No tienes empresas asociadas.");
+      const { token, empresaId, rolId, rolesByCompany, usuarioEstado } =
+        response.data;
+
+      // Validar datos críticos del login
+      if (!token) {
+        setError("Error: No se recibió token del servidor");
+        setIsLoading(false);
         return;
       }
 
-      setUsername(correo);
-
+      // Validaciones de estado del usuario
       if (usuarioEstado === 2) {
         router.replace("/registro-persona");
+        setIsLoading(false);
         return;
       } else if (usuarioEstado === 3) {
         router.replace("/registro-empresa");
+        setIsLoading(false);
         return;
       }
 
-      setEmpresasDisponibles(rolesByCompany);
+      if (!rolesByCompany || rolesByCompany.length === 0) {
+        setError("No tienes empresas asociadas.");
+        setIsLoading(false);
+        return;
+      }
 
-      if (rolesByCompany.length === 1) {
-        const empresa = rolesByCompany[0];
-        setEmpresaSeleccionada(empresa);
+      await setUsername(correo.trim());
 
-        const seleccionResp = await axios.post(
-          `${API_URL}${API_URL_SELECTION}`,
-          {
-            username: correo,
-            empresaId: empresa.empresaId,
-            rolId: empresa.rolId,
-          }
+      const empresaActual = rolesByCompany.find(
+        (empresa) => empresa.empresaId === empresaId && empresa.rolId === rolId
+      );
+
+      if (!empresaActual) {
+        console.warn(
+          "No se encontró empresa actual, usando primera disponible"
         );
+        const primeraEmpresa = rolesByCompany[0];
+        await guardarSesionCompleta({
+          token,
+          empresaId: primeraEmpresa.empresaId,
+          rolId: primeraEmpresa.rolId,
+          empresaNombre: primeraEmpresa.empresaNombre,
+          rolNombre: primeraEmpresa.rolNombre,
+          rolesByCompany,
+        });
+      } else {
+        await guardarSesionCompleta({
+          token,
+          empresaId,
+          rolId,
+          empresaNombre: empresaActual.empresaNombre,
+          rolNombre: empresaActual.rolNombre,
+          rolesByCompany,
+        });
+      }
 
-        const token = seleccionResp.data.token;
-        await setToken(token);
+      await configurarNotificacionesPush(correo.trim());
 
-        router.replace("/home");
+      router.replace("/home");
+    } catch (err) {
+      console.error("Error en login:", err);
+      console.error("Detalles del error:", {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+      });
+
+      // Manejo de errores
+      if (err.response?.status === 401) {
+        setError("Usuario o contraseña incorrectos.");
+      } else if (err.response?.status === 404) {
+        setError("Cuenta no encontrada. Verifica tus datos.");
+      } else if (err.response?.status === 400) {
+        setError("Datos inválidos. Revisa la información ingresada.");
+      } else if (
+        err.message?.includes("Network Error") ||
+        err.code === "NETWORK_ERROR"
+      ) {
+        setError("Error de conexión. Verifica tu conexión a internet.");
+      } else if (err.message?.includes("timeout")) {
+        setError("La conexión tardó demasiado. Intenta nuevamente.");
+      } else {
+        setError("Error inesperado. Intenta nuevamente.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  //Notificaciones Push
+  const configurarNotificacionesPush = async (userEmail) => {
+    try {
+      if (!Device.isDevice) {
+        console.log(
+          "No es un dispositivo físico, saltando notificaciones push"
+        );
         return;
       }
 
-      router.replace("/company/selection");
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
 
-      if (Device.isDevice) {
-        const { status: existingStatus } =
-          await Notifications.getPermissionsAsync();
-        let finalStatus = existingStatus;
-
-        if (finalStatus !== "granted") {
-          const { status } = await Notifications.requestPermissionsAsync();
-          finalStatus = status;
-        }
-
-        if (finalStatus === "granted") {
-          const pushToken = (
-            await Notifications.getExpoPushTokenAsync({
-              projectId: projectId || "local/FrontendMovil",
-            })
-          ).data;
-
-          await fetch("http://192.168.193.85:3000/api/token", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: correo, token: pushToken }),
-          });
-        }
+      if (finalStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
       }
-    } catch (err) {
-      console.error(err);
-      setError("Credenciales inválidas o error de conexión.");
+
+      if (finalStatus === "granted") {
+        const pushToken = (
+          await Notifications.getExpoPushTokenAsync({
+            projectId: projectId || "local/FrontendMovil",
+          })
+        ).data;
+
+        console.log("Token de notificaciones obtenido:", pushToken);
+
+        const notificationEndpoint = `${API_URL}/notifications/token`;
+
+        await fetch(notificationEndpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: userEmail,
+            token: pushToken,
+          }),
+        });
+
+        //console.log("Token de notificaciones registrado correctamente");
+      } else {
+        // console.log("Permisos de notificaciones denegados");
+      }
+    } catch (error) {
+      //console.error("Error configurando notificaciones push:", error);
     }
   };
 
@@ -143,8 +231,10 @@ export default function LoginScreen() {
           style={styles.input}
           keyboardType="email-address"
           autoCapitalize="none"
+          autoCorrect={false}
           value={correo}
           onChangeText={setCorreo}
+          editable={!isLoading}
         />
       </View>
 
@@ -157,8 +247,12 @@ export default function LoginScreen() {
           secureTextEntry={!showPassword}
           value={contrasena}
           onChangeText={setContrasena}
+          editable={!isLoading}
         />
-        <TouchableOpacity onPress={() => setShowPassword((prev) => !prev)}>
+        <TouchableOpacity
+          onPress={() => setShowPassword((prev) => !prev)}
+          disabled={isLoading}
+        >
           <Ionicons
             name={showPassword ? "eye-off-outline" : "eye-outline"}
             size={20}
@@ -167,12 +261,21 @@ export default function LoginScreen() {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-        <Text style={styles.loginButtonText}>Iniciar sesión</Text>
-        <Ionicons name="arrow-forward" size={18} color="#fff" />
+      <TouchableOpacity
+        style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+        onPress={handleLogin}
+        disabled={isLoading}
+      >
+        <Text style={styles.loginButtonText}>
+          {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
+        </Text>
+        {!isLoading && <Ionicons name="arrow-forward" size={18} color="#fff" />}
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push("/forgotPassword")}>
+      <TouchableOpacity
+        onPress={() => router.push("/forgotPassword")}
+        disabled={isLoading}
+      >
         <Text style={styles.linkText}>¿Olvidaste tu contraseña?</Text>
       </TouchableOpacity>
 
@@ -184,7 +287,10 @@ export default function LoginScreen() {
 
       <View style={styles.footer}>
         <Text style={{ color: "#555" }}>¿No tienes una cuenta? </Text>
-        <TouchableOpacity onPress={() => router.push("/register")}>
+        <TouchableOpacity
+          onPress={() => router.push("/register")}
+          disabled={isLoading}
+        >
           <Text style={styles.registerLink}>Regístrate aquí</Text>
         </TouchableOpacity>
       </View>
@@ -210,7 +316,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     color: "#000",
   },
-
   label: {
     fontSize: 14,
     fontWeight: "600",
@@ -242,6 +347,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
     gap: 10,
+  },
+  loginButtonDisabled: {
+    backgroundColor: "#ccc",
   },
   loginButtonText: {
     color: "#fff",

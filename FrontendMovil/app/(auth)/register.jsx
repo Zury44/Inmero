@@ -21,7 +21,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 const { width } = Dimensions.get("window");
 const { API_URL } = Constants.expoConfig.extra;
 
-// Función para evaluar la fortaleza de la contraseña
+// Función para evaluar la seguridad de la contraseña
 const getPasswordStrength = (password) => {
   let score = 0;
   let feedback = [];

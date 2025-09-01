@@ -72,14 +72,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     padding: 24,
-    justifyContent: "space-between", // aún separa topContent y botones
+    justifyContent: "space-between",
   },
   topContent: {
     alignItems: "center",
   },
   logoContainer: {
     alignItems: "center",
-    marginBottom: 4, // reduce el espacio entre logo e imagen
+    marginBottom: 4,
   },
   logo: {
     width: 150,
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     width: 280,
     height: 240,
     marginTop: 0,
-    marginBottom: 8, // control sobre separación con texto
+    marginBottom: 8,
   },
   welcomeText: {
     fontSize: 35,

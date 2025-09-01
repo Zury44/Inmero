@@ -43,7 +43,7 @@ export default function AuthLayout() {
 
     const subscription = Notifications.addNotificationReceivedListener(
       (notification) => {
-        console.log("📥 Notificación recibida en foreground:", notification);
+        console.log("Notificación recibida en foreground:", notification);
       }
     );
 

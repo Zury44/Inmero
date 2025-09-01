@@ -25,7 +25,7 @@ const endpoints = {
   municipio: "/api/v1/municipio",
   sede: "/api/v1/sede",
   bloque: "/api/v1/bloque",
-  espacio: "/api/v1/espacio", //Posiblemente se borre
+  espacio: "/api/v1/espacio",
   almacen: "/api/v1/almacen",
   producto: "/api/v1/producto",
   categoria: "/api/v1/producto_categoria",
@@ -101,7 +101,6 @@ export default function PedidoReporte() {
 
         const data = await res.json();
 
-        // 🔧 CORRECCIÓN: Manejar tanto arrays directos como respuestas paginadas
         let processedData;
 
         if (Array.isArray(data)) {
@@ -110,14 +109,14 @@ export default function PedidoReporte() {
         } else if (data && Array.isArray(data.content)) {
           // Respuesta paginada con estructura { content: [...], page: {...} }
           processedData = data.content;
-          console.log(`✅ Datos paginados recibidos para ${stateKey}:`, {
+          console.log(`Datos paginados recibidos para ${stateKey}:`, {
             total: data.page?.totalElements || data.content.length,
             pagina: data.page?.number || 0,
             elementos: data.content.length,
           });
         } else {
           // Formato no reconocido
-          console.warn(`❌ Formato de datos no válido para ${stateKey}:`, data);
+          console.warn(`Formato de datos no válido para ${stateKey}:`, data);
           console.warn(`   Esperado: Array o { content: Array, page: Object }`);
           console.warn(`   Recibido:`, typeof data, data);
           return;
@@ -145,16 +144,12 @@ export default function PedidoReporte() {
         const setter = setters[stateKey];
         if (setter) {
           setter(finalData);
-          console.log(
-            `✅ ${stateKey} cargados:`,
-            finalData.length,
-            "elementos"
-          );
+          console.log(` ${stateKey} cargados:`, finalData.length, "elementos");
         } else {
-          console.warn(`❌ No se encontró setter para ${stateKey}`);
+          console.warn(`No se encontró setter para ${stateKey}`);
         }
       } catch (error) {
-        console.error(`❌ Error cargando ${stateKey}:`, error);
+        console.error(`Error cargando ${stateKey}:`, error);
         Alert.alert(
           "Error",
           `No se pudieron cargar los datos de ${stateKey}: ${error.message}`
@@ -163,7 +158,6 @@ export default function PedidoReporte() {
     },
     [token, API_URL]
   );
-  // 🔧 CORRECCIÓN: Carga inicial de datos simplificada (igual al KardexReporte)
   useEffect(() => {
     const loadInitialData = async () => {
       if (!token) return;
@@ -414,7 +408,7 @@ export default function PedidoReporte() {
 
     // Verificaciones básicas
     if (!token) {
-      console.error("❌ No hay token disponible");
+      console.error("No hay token disponible");
       Alert.alert(
         "Error",
         "No hay sesión activa. Por favor, inicia sesión nuevamente."
@@ -423,7 +417,7 @@ export default function PedidoReporte() {
     }
 
     if (!empresaSeleccionada?.empresaId) {
-      console.error("❌ No hay empresa seleccionada");
+      console.error("No hay empresa seleccionada");
       Alert.alert(
         "Error",
         "No hay empresa seleccionada. Por favor, selecciona una empresa."
@@ -451,7 +445,7 @@ export default function PedidoReporte() {
 
     const urlCompleta = `${API_URL}/api/v2/report/pedido`;
 
-    console.log("📤 Enviando petición:");
+    console.log("Enviando petición:");
     console.log("   URL:", urlCompleta);
     console.log("   Filtros para backend:", filtrosParaBackend);
 
@@ -469,7 +463,7 @@ export default function PedidoReporte() {
         body: JSON.stringify(filtrosParaBackend),
       });
 
-      console.log("📥 Respuesta recibida:");
+      console.log("Respuesta recibida:");
       console.log("   Status:", response.status);
       console.log("   Status Text:", response.statusText);
 
@@ -498,10 +492,10 @@ export default function PedidoReporte() {
         throw new Error(errorMessage);
       }
 
-      console.log("✅ Respuesta exitosa, procesando archivo...");
+      console.log("Respuesta exitosa, procesando archivo...");
 
       const arrayBuffer = await response.arrayBuffer();
-      console.log("📄 Archivo recibido:", arrayBuffer.byteLength, "bytes");
+      console.log("Archivo recibido:", arrayBuffer.byteLength, "bytes");
 
       if (arrayBuffer.byteLength === 0) {
         throw new Error("El archivo recibido está vacío");
@@ -521,10 +515,10 @@ export default function PedidoReporte() {
         encoding: FileSystem.EncodingType.Base64,
       });
 
-      console.log("💾 Archivo guardado en:", uri);
+      console.log("Archivo guardado en:", uri);
 
       if (await Sharing.isAvailableAsync()) {
-        console.log("📤 Compartiendo archivo...");
+        console.log("Compartiendo archivo...");
         await Sharing.shareAsync(uri, {
           mimeType: "application/pdf",
           dialogTitle: "Compartir Reporte de Pedido",
@@ -533,9 +527,9 @@ export default function PedidoReporte() {
         Alert.alert("Éxito", "Reporte generado correctamente");
       }
 
-      console.log("✅ Proceso completado exitosamente");
+      console.log("Proceso completado exitosamente");
     } catch (error) {
-      console.error("❌ Error completo:", error);
+      console.error("Error completo:", error);
       Alert.alert("Error", `No se pudo generar el reporte: ${error.message}`);
     } finally {
       setGeneratingReport(false);

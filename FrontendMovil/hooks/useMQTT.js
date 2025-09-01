@@ -69,7 +69,7 @@ export const useMQTT = () => {
     client.removeAllListeners();
 
     client.on("connect", () => {
-      console.log("✅ Conectado al broker MQTT");
+      console.log("Conectado al broker MQTT");
       setConnected(true);
       setIsConnecting(false);
 
@@ -79,9 +79,9 @@ export const useMQTT = () => {
           // Verificar que el tópico no sea undefined
           client.subscribe(topic, { qos: 0 }, (err) => {
             if (err) {
-              console.error(`❌ Error al suscribirse a ${topic}:`, err);
+              console.error(`Error al suscribirse a ${topic}:`, err);
             } else {
-              console.log(`✅ Suscrito a: ${topic}`);
+              console.log(`Suscrito a: ${topic}`);
             }
           });
         }
@@ -89,19 +89,19 @@ export const useMQTT = () => {
     });
 
     client.on("reconnect", () => {
-      console.log("🔁 Reintentando conexión...");
+      console.log("Reintentando conexión...");
       setIsConnecting(true);
     });
 
     client.on("close", () => {
-      console.log("🔌 Desconectado");
+      console.log("Desconectado");
       setConnected(false);
       setIsConnecting(false);
     });
 
     client.on("message", (topic, message) => {
       const payload = message.toString();
-      console.log(`📩 Mensaje recibido [${topic}]: ${payload}`);
+      console.log(`Mensaje recibido [${topic}]: ${payload}`);
       setLastMessage({ topic, message: payload });
 
       // Manejar diferentes tipos de mensajes según el tópico
@@ -115,14 +115,14 @@ export const useMQTT = () => {
             setHumidity(data.humedad);
           }
         } catch (error) {
-          console.error("❌ Error al parsear JSON:", error);
+          console.error("Error al parsear JSON:", error);
         }
       }
       // Los demás tópicos se manejan directamente en los componentes usando lastMessage
     });
 
     client.on("error", (err) => {
-      console.error("❌ Error MQTT:", err);
+      console.error("Error MQTT:", err);
     });
 
     return () => {
@@ -144,13 +144,13 @@ export const useMQTT = () => {
     }
 
     const payload = JSON.stringify({ estado: estado.toUpperCase() });
-    console.log(`📤 Publicando a ${topic}: ${payload}`);
+    console.log(`Publicando a ${topic}: ${payload}`);
 
     clientRef.current.publish(topic, payload, { qos: 0 }, (err) => {
       if (err) {
-        console.error("❌ Error al publicar:", err);
+        console.error("Error al publicar:", err);
       } else {
-        console.log(`✅ Mensaje publicado exitosamente a ${topic}`);
+        console.log(`Mensaje publicado exitosamente a ${topic}`);
       }
     });
   };

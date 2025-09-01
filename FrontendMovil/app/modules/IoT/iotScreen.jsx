@@ -40,8 +40,7 @@ export default function iotScreen() {
 
   const { username } = useSession();
 
-  // Animación del nivel del tanque
-  const ALTURA_TANQUE_CM = 100; // Cambia este valor si tu tanque tiene otra altura real
+  const ALTURA_TANQUE_CM = 100;
 
   useEffect(() => {
     if (lastMessage?.topic === "sensor/agua/ultrasonico") {
@@ -56,13 +55,12 @@ export default function iotScreen() {
         console.log("📏 Distancia detectada:", distancia, "cm");
         setDistanciaUltrasonico(distancia);
 
-        // Calcular nivel como porcentaje
         const nivelCalculado = Math.max(
           0,
           Math.min(100, (distancia / ALTURA_TANQUE_CM) * 100)
         );
 
-        setNivel(nivelCalculado); // reusa el mismo "nivel" que usas para animar el tanque
+        setNivel(nivelCalculado);
         Animated.timing(animacionNivel, {
           toValue: nivelCalculado,
           duration: 500,
@@ -302,7 +300,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   statusBarSpacer: {
-    height: Constants.statusBarHeight || 44, // 44px es el altura típica del notch/status bar en iOS
+    height: Constants.statusBarHeight || 44,
     backgroundColor: "#f5f5f5",
   },
 

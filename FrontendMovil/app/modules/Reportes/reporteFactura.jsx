@@ -90,7 +90,7 @@ export default function ReporteFactura() {
     console.log("===============================================");
   }, [token, empresaSeleccionada]);
 
-  // Función mejorada para fetch de datos con mejor manejo de errores
+  // Función para fetch de datos con mejor manejo de errores
   const fetchData = useCallback(
     async (endpoint, stateKey, filterFn = null) => {
       try {
@@ -112,19 +112,18 @@ export default function ReporteFactura() {
         let processedData;
 
         if (Array.isArray(data)) {
-          // Respuesta directa como array
           processedData = data;
         } else if (data && Array.isArray(data.content)) {
           // Respuesta paginada con estructura { content: [...], page: {...} }
           processedData = data.content;
-          console.log(`✅ Datos paginados recibidos para ${stateKey}:`, {
+          console.log(`Datos paginados recibidos para ${stateKey}:`, {
             total: data.page?.totalElements || data.content.length,
             pagina: data.page?.number || 0,
             elementos: data.content.length,
           });
         } else {
           // Formato no reconocido
-          console.warn(`❌ Formato de datos no válido para ${stateKey}:`, data);
+          console.warn(`Formato de datos no válido para ${stateKey}:`, data);
           console.warn(`   Esperado: Array o { content: Array, page: Object }`);
           console.warn(`   Recibido:`, typeof data, data);
           return;
@@ -149,16 +148,12 @@ export default function ReporteFactura() {
         const setter = setters[stateKey];
         if (setter) {
           setter(finalData);
-          console.log(
-            `✅ ${stateKey} cargados:`,
-            finalData.length,
-            "elementos"
-          );
+          console.log(` ${stateKey} cargados:`, finalData.length, "elementos");
         } else {
-          console.warn(`❌ No se encontró setter para ${stateKey}`);
+          console.warn(` No se encontró setter para ${stateKey}`);
         }
       } catch (error) {
-        console.error(`❌ Error cargando ${stateKey}:`, error);
+        console.error(`Error cargando ${stateKey}:`, error);
         Alert.alert(
           "Error",
           `No se pudieron cargar los datos de ${stateKey}: ${error.message}`
@@ -479,7 +474,6 @@ export default function ReporteFactura() {
   const generarReporte = async () => {
     console.log("=== INICIANDO GENERACIÓN DE REPORTE FACTURA ===");
 
-    // Verificaciones básicas
     if (!token) {
       console.error("No hay token disponible");
       Alert.alert(
@@ -534,7 +528,7 @@ export default function ReporteFactura() {
 
     const urlCompleta = `${API_URL}${endpoints.reporteFactura}`;
 
-    console.log("📤 Enviando petición:");
+    console.log("Enviando petición:");
     console.log("   URL:", urlCompleta);
     console.log("   Filtros para backend:", filtrosParaBackend);
 
@@ -552,7 +546,7 @@ export default function ReporteFactura() {
         body: JSON.stringify(filtrosParaBackend),
       });
 
-      console.log("📥 Respuesta recibida:");
+      console.log(" Respuesta recibida:");
       console.log("   Status:", response.status);
       console.log("   Status Text:", response.statusText);
 
@@ -607,7 +601,7 @@ export default function ReporteFactura() {
       console.log("💾 Archivo guardado en:", uri);
 
       if (await Sharing.isAvailableAsync()) {
-        console.log("📤 Compartiendo archivo...");
+        console.log("Compartiendo archivo...");
         await Sharing.shareAsync(uri, {
           mimeType: "application/pdf",
           dialogTitle: "Compartir Reporte de Factura",
@@ -616,9 +610,9 @@ export default function ReporteFactura() {
         Alert.alert("Éxito", "Reporte generado correctamente");
       }
 
-      console.log("✅ Proceso completado exitosamente");
+      console.log(" Proceso completado exitosamente");
     } catch (error) {
-      console.error("❌ Error completo:", error);
+      console.error("Error completo:", error);
       Alert.alert("Error", `No se pudo generar el reporte: ${error.message}`);
     } finally {
       setGeneratingReport(false);
@@ -859,7 +853,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffffff",
   },
   statusBarSpacer: {
-    height: Constants.statusBarHeight || 44, // 44px es el altura típica del notch/status bar en iOS
+    height: Constants.statusBarHeight || 44,
     backgroundColor: "#f5f5f5",
   },
   container: {

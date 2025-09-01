@@ -114,14 +114,14 @@ export default function KardexReporte() {
         } else if (data && Array.isArray(data.content)) {
           // Respuesta paginada con estructura { content: [...], page: {...} }
           processedData = data.content;
-          console.log(`✅ Datos paginados recibidos para ${stateKey}:`, {
+          console.log(` Datos paginados recibidos para ${stateKey}:`, {
             total: data.page?.totalElements || data.content.length,
             pagina: data.page?.number || 0,
             elementos: data.content.length,
           });
         } else {
           // Formato no reconocido
-          console.warn(`❌ Formato de datos no válido para ${stateKey}:`, data);
+          console.warn(` Formato de datos no válido para ${stateKey}:`, data);
           console.warn(`   Esperado: Array o { content: Array, page: Object }`);
           console.warn(`   Recibido:`, typeof data, data);
           return;
@@ -146,16 +146,12 @@ export default function KardexReporte() {
         const setter = setters[stateKey];
         if (setter) {
           setter(finalData);
-          console.log(
-            `✅ ${stateKey} cargados:`,
-            finalData.length,
-            "elementos"
-          );
+          console.log(` ${stateKey} cargados:`, finalData.length, "elementos");
         } else {
-          console.warn(`❌ No se encontró setter para ${stateKey}`);
+          console.warn(`No se encontró setter para ${stateKey}`);
         }
       } catch (error) {
-        console.error(`❌ Error cargando ${stateKey}:`, error);
+        console.error(`Error cargando ${stateKey}:`, error);
         Alert.alert(
           "Error",
           `No se pudieron cargar los datos de ${stateKey}: ${error.message}`
