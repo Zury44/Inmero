@@ -651,8 +651,6 @@ export default function ReporteFactura() {
       </View>
     </View>
   );
-
-  // Función para renderizar selectores de fecha y hora
   const renderDateTimePicker = (
     label,
     date,
@@ -660,41 +658,33 @@ export default function ReporteFactura() {
     onTimeChange,
     showDatePicker,
     setShowDatePicker,
-    showTimePicker,
-    setShowTimePicker
+    showTimePicker
   ) => (
-    <View style={styles.dateTimeContainer}>
-      <Text style={styles.label}>{label} *</Text>
+    <View style={{ marginTop: 20 }}>
+      {/* Label + botón de fecha */}
+      <View style={styles.dateInputContainer}>
+        <Text style={styles.dateLabel}>{label}</Text>
 
-      <View style={styles.dateTimeRow}>
         <TouchableOpacity
-          style={styles.dateTimeButton}
+          style={styles.dateButton}
           onPress={() => setShowDatePicker(true)}
         >
-          <Text style={styles.dateTimeButtonText}>{formatDate(date)}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.dateTimeButton}
-          onPress={() => setShowTimePicker(true)}
-        >
-          <Text style={styles.dateTimeButtonText}>{formatTime(date)}</Text>
+          <Text style={styles.dateButtonText}>{formatDate(date)}</Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.dateTimeDisplay}>{formatDateTime(date)}</Text>
-
+      {/* Picker nativo de fecha */}
       {showDatePicker && (
         <DateTimePicker
           testID="datePicker"
           value={date}
           mode="date"
-          is24Hour={true}
           display="default"
           onChange={onDateChange}
         />
       )}
 
+      {/* Picker nativo de hora (oculto) */}
       {showTimePicker && (
         <DateTimePicker
           testID="timePicker"
@@ -796,7 +786,7 @@ export default function ReporteFactura() {
           <Text style={styles.sectionTitle}>Rango de Fechas</Text>
 
           {renderDateTimePicker(
-            "Fecha de Inicio",
+            "Fecha Inicio:",
             fechaInicio,
             onChangeFechaInicio,
             onChangeTimeInicio,
@@ -807,7 +797,7 @@ export default function ReporteFactura() {
           )}
 
           {renderDateTimePicker(
-            "Fecha de Fin",
+            "Fecha Fin:",
             fechaFin,
             onChangeFechaFin,
             onChangeTimeFin,
@@ -916,46 +906,45 @@ const styles = StyleSheet.create({
   picker: {
     height: 50,
   },
-  dateTimeContainer: {
-    marginVertical: 12,
-    backgroundColor: "white",
-    borderRadius: 8,
-    padding: 12,
-    elevation: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1,
-  },
-  dateTimeRow: {
+  dateInputContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginVertical: 8,
-  },
-  dateTimeButton: {
-    flex: 0.48,
-    backgroundColor: "#007bff",
-    padding: 12,
-    borderRadius: 6,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
+    marginVertical: 10,
+    paddingVertical: 5,
   },
-  dateTimeButtonText: {
-    color: "white",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  dateTimeDisplay: {
-    marginTop: 8,
-    padding: 10,
-    backgroundColor: "#f8f9fa",
-    borderRadius: 4,
-    textAlign: "center",
+  dateLabel: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#495057",
+    color: "#333",
+    flex: 1,
+  },
+  dateButton: {
+    backgroundColor: "#f8f9fa",
     borderWidth: 1,
     borderColor: "#dee2e6",
+    borderRadius: 6,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    flex: 2,
+    alignItems: "center",
+  },
+  dateButtonText: {
+    fontSize: 16,
+    color: "#495057",
+    fontWeight: "500",
+  },
+  dateInfo: {
+    marginTop: 15,
+    padding: 10,
+    backgroundColor: "#f8f9fa",
+    borderRadius: 6,
+    alignItems: "center",
+  },
+  dateInfoText: {
+    fontSize: 14,
+    color: "#6c757d",
+    fontStyle: "italic",
   },
   buttonContainer: {
     marginTop: 20,

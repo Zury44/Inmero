@@ -1041,6 +1041,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
   },
+
   dateTimeContainer: {
     marginVertical: 8,
     backgroundColor: "white",
@@ -1082,6 +1083,7 @@ const styles = StyleSheet.create({
     color: "#6c757d",
     fontStyle: "italic",
   },
+
   pickerWrapper: {
     borderWidth: 1,
     borderColor: "#ddd",

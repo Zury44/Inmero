@@ -33,6 +33,14 @@ const endpoints = {
 };
 
 export default function PedidoReporte() {
+  // Fechas de filtro
+  const [fechaInicio, setFechaInicio] = useState(new Date());
+  const [fechaFin, setFechaFin] = useState(new Date());
+
+  // Mostrar u ocultar DatePicker nativo
+  const [showDatePickerInicio, setShowDatePickerInicio] = useState(false);
+  const [showDatePickerFin, setShowDatePickerFin] = useState(false);
+
   const { token, empresaSeleccionada } = useSession();
 
   // Estados para datos de los endpoints
@@ -80,6 +88,11 @@ export default function PedidoReporte() {
     console.log("Empresa seleccionada:", empresaSeleccionada);
     console.log("================================");
   }, [token, empresaSeleccionada]);
+
+  const formatearFecha = (date) => {
+    if (!date) return "";
+    return new Date(date).toLocaleDateString("es-ES");
+  };
 
   // Función mejorada para fetch de datos con manejo de respuestas paginadas
   const fetchData = useCallback(
@@ -666,6 +679,57 @@ export default function PedidoReporte() {
             keyboardType="numeric"
           />
         </View>
+        <View style={styles.dateSection}>
+          {/* Fecha Inicio */}
+          <View style={styles.dateInputContainer}>
+            <Text style={styles.dateLabel}>Fecha Inicio:</Text>
+            <TouchableOpacity
+              style={styles.dateButton}
+              onPress={() => setShowDatePickerInicio(true)}
+            >
+              <Text style={styles.dateButtonText}>
+                {formatearFecha(fechaInicio)}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {showDatePickerInicio && (
+            <DateTimePicker
+              value={fechaInicio}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                setShowDatePickerInicio(false);
+                if (selectedDate) setFechaInicio(selectedDate);
+              }}
+            />
+          )}
+
+          {/* Fecha Fin */}
+          <View style={styles.dateInputContainer}>
+            <Text style={styles.dateLabel}>Fecha Fin:</Text>
+            <TouchableOpacity
+              style={styles.dateButton}
+              onPress={() => setShowDatePickerFin(true)}
+            >
+              <Text style={styles.dateButtonText}>
+                {formatearFecha(fechaFin)}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {showDatePickerFin && (
+            <DateTimePicker
+              value={fechaFin}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                setShowDatePickerFin(false);
+                if (selectedDate) setFechaFin(selectedDate);
+              }}
+            />
+          )}
+        </View>
 
         {/* Botones de acción */}
         <View style={styles.buttonContainer}>
@@ -889,5 +953,56 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 14,
     color: "#666",
+  },
+  dateSection: {
+    marginTop: 20,
+    backgroundColor: "white",
+    borderRadius: 8,
+    padding: 16,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  dateInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginVertical: 10,
+    paddingVertical: 5,
+  },
+  dateLabel: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#333",
+    flex: 1,
+  },
+  dateButton: {
+    backgroundColor: "#f8f9fa",
+    borderWidth: 1,
+    borderColor: "#dee2e6",
+    borderRadius: 6,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    flex: 2,
+    alignItems: "center",
+  },
+  dateButtonText: {
+    fontSize: 16,
+    color: "#495057",
+    fontWeight: "500",
+  },
+  dateInfo: {
+    marginTop: 15,
+    padding: 10,
+    backgroundColor: "#f8f9fa",
+    borderRadius: 6,
+    alignItems: "center",
+  },
+  dateInfoText: {
+    fontSize: 14,
+    color: "#6c757d",
+    fontStyle: "italic",
   },
 });

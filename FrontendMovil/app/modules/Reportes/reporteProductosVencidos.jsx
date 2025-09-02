@@ -341,47 +341,50 @@ export default function ReporteProductosVencidos() {
           categoriaId,
           setCategoriaId
         )}
+        <View style={styles.dateSection}>
+          {/* Campo de Fecha Inicio */}
+          <View style={styles.dateInputContainer}>
+            <Text style={styles.dateLabel}>Fecha Inicio:</Text>
+            <TouchableOpacity
+              style={styles.dateButton}
+              onPress={() => setShowDatePickerInicio(true)}
+            >
+              <Text style={styles.dateButtonText}>
+                {formatearFecha(fechaInicio)}
+              </Text>
+            </TouchableOpacity>
 
-        {/* Campo de fecha inicio */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Fecha Inicio *</Text>
-          <TouchableOpacity
-            style={styles.dateButton}
-            onPress={() => setShowDatePickerInicio(true)}
-          >
-            <Text style={styles.dateButtonText}>
-              {formatearFecha(fechaInicio)}
-            </Text>
-          </TouchableOpacity>
-          {showDatePickerInicio && (
-            <DateTimePicker
-              value={fechaInicio}
-              mode="date"
-              display="default"
-              onChange={onChangeFechaInicio}
-            />
-          )}
-        </View>
+            {showDatePickerInicio && (
+              <DateTimePicker
+                value={fechaInicio}
+                mode="date"
+                display="default"
+                onChange={onChangeFechaInicio}
+              />
+            )}
+          </View>
 
-        {/* Campo de fecha fin */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Fecha Fin *</Text>
-          <TouchableOpacity
-            style={styles.dateButton}
-            onPress={() => setShowDatePickerFin(true)}
-          >
-            <Text style={styles.dateButtonText}>
-              {formatearFecha(fechaFin)}
-            </Text>
-          </TouchableOpacity>
-          {showDatePickerFin && (
-            <DateTimePicker
-              value={fechaFin}
-              mode="date"
-              display="default"
-              onChange={onChangeFechaFin}
-            />
-          )}
+          {/* Campo de Fecha Fin */}
+          <View style={styles.dateInputContainer}>
+            <Text style={styles.dateLabel}>Fecha Fin:</Text>
+            <TouchableOpacity
+              style={styles.dateButton}
+              onPress={() => setShowDatePickerFin(true)}
+            >
+              <Text style={styles.dateButtonText}>
+                {formatearFecha(fechaFin)}
+              </Text>
+            </TouchableOpacity>
+
+            {showDatePickerFin && (
+              <DateTimePicker
+                value={fechaFin}
+                mode="date"
+                display="default"
+                onChange={onChangeFechaFin}
+              />
+            )}
+          </View>
         </View>
 
         {/* Botón para generar reporte */}
@@ -478,19 +481,58 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
   },
-  dateButton: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 4,
-    padding: 12,
-    backgroundColor: "#fff",
+  dateSection: {
+    marginTop: 20,
+    backgroundColor: "white",
+    borderRadius: 8,
+    padding: 16,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  dateInputContainer: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
+    marginVertical: 10,
+    paddingVertical: 5,
+  },
+  dateLabel: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#333",
+    flex: 1,
+  },
+  dateButton: {
+    backgroundColor: "#f8f9fa",
+    borderWidth: 1,
+    borderColor: "#dee2e6",
+    borderRadius: 6,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    flex: 2,
+    alignItems: "center",
   },
   dateButtonText: {
     fontSize: 16,
-    color: "#333",
+    color: "#495057",
+    fontWeight: "500",
   },
+  dateInfo: {
+    marginTop: 15,
+    padding: 10,
+    backgroundColor: "#f8f9fa",
+    borderRadius: 6,
+    alignItems: "center",
+  },
+  dateInfoText: {
+    fontSize: 14,
+    color: "#6c757d",
+    fontStyle: "italic",
+  },
+
   helpContainer: {
     marginVertical: 16,
     backgroundColor: "#e8f4fd",

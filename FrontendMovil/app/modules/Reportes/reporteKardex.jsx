@@ -509,9 +509,6 @@ export default function KardexReporte() {
     filtrosParaBackend.fecha_inicio = formatearFechaConHora(fechaInicio, true);
     filtrosParaBackend.fecha_fin = formatearFechaConHora(fechaFin, false);
 
-    // Si el backend también necesita empresa_id, descomenta la siguiente línea:
-    // filtrosParaBackend.empresa_id = empresaSeleccionada.empresaId;
-
     const urlCompleta = `${API_URL}/api/v2/report/kardex`;
 
     console.log("Enviando petición:");
@@ -766,17 +763,6 @@ export default function KardexReporte() {
               maximumDate={new Date()}
             />
           )}
-
-          {/* Información del rango */}
-          <View style={styles.dateInfo}>
-            <Text style={styles.dateInfoText}>
-              Rango seleccionado:{" "}
-              {Math.ceil(
-                Math.abs(fechaFin - fechaInicio) / (1000 * 60 * 60 * 24)
-              ) + 1}{" "}
-              días
-            </Text>
-          </View>
         </View>
 
         <View style={styles.buttonContainer}>
@@ -887,6 +873,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "500",
   },
+
   dateInputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -927,6 +914,7 @@ const styles = StyleSheet.create({
     color: "#6c757d",
     fontStyle: "italic",
   },
+
   buttonContainer: {
     marginTop: 30,
     marginHorizontal: 20,
