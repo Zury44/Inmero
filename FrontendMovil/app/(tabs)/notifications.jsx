@@ -54,8 +54,11 @@ export default function NotificationsScreen() {
   const unreadCount = notificaciones.filter((n) => n.estado !== "leida").length;
 
   return (
-    <SafeAreaView style={styles.container} edges={["bottom", "left", "right"]}>
-      <CustomHeader title="Notificaciones" backRoute="(tabs)/home" />
+    <SafeAreaView
+      style={styles.container}
+      edges={["top", "bottom", "left", "right"]}
+    >
+      <CustomHeader title="Notificaciones" backRoute="/(tabs)/home" />
 
       <FlatList
         data={notificaciones}

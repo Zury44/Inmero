@@ -9,17 +9,7 @@ export default function HeaderHome() {
       <View style={styles.logoContainer}>
         <LogoInmero width={140} height={150} />
       </View>
-      <View style={styles.headerRight}>
-        <Ionicons
-          name="share-outline"
-          size={20}
-          color="#666"
-          style={styles.shareIcon}
-        />
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>AS</Text>
-        </View>
-      </View>
+      <View style={styles.headerRight}></View>
     </View>
   );
 }
