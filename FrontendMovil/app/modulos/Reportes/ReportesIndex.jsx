@@ -19,7 +19,7 @@ const reportes = [
     title: "Reporte de\nPedido",
     description: "Pedidos realizados y pendientes",
     icon: "clipboard-list-outline",
-    route: "/modules/Reportes/reportePedido",
+    route: "/modulos/Reportes/reportePedido",
     backgroundColor: "#E3F2FD",
   },
   {
@@ -27,7 +27,7 @@ const reportes = [
     title: "Reporte de\nKardex",
     description: "Control de movimientos de inventario",
     icon: "chart-line",
-    route: "/modules/Reportes/reporteKardex",
+    route: "/modulos/Reportes/reporteKardex",
     backgroundColor: "#E8F5E8",
   },
   {
@@ -35,7 +35,7 @@ const reportes = [
     title: "Reporte de\nProductos Vencidos",
     description: "Productos próximos a vencer y vencidos",
     icon: "alert-circle-outline",
-    route: "/modules/Reportes/reporteProductosVencidos",
+    route: "/modulos/Reportes/reporteProductosVencidos",
     backgroundColor: "#FFF3E0",
   },
   {
@@ -43,7 +43,7 @@ const reportes = [
     title: "Reporte de\nFactura",
     description: "Facturas emitidas y por cobrar",
     icon: "receipt",
-    route: "/modules/Reportes/reporteFactura",
+    route: "/modulos/Reportes/reporteFactura",
     backgroundColor: "#FFEBEE",
   },
   {
@@ -51,7 +51,7 @@ const reportes = [
     title: "Reporte de\nOrden Compra",
     description: "Órdenes de compra y proveedores",
     icon: "cart-outline",
-    route: "/modules/Reportes/reporteOrdencompra",
+    route: "/modulos/Reportes/reporteOrdencompra",
     backgroundColor: "#F3E5F5",
   },
 ];
